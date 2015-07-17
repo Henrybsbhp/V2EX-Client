@@ -17,10 +17,16 @@
 @property (nonatomic, strong) NSString *username;
 @property (nonatomic, strong) NSString *lastDate;
 @property (nonatomic, strong) NSString *replies;
-@property (nonatomic, strong) NSString *createdDate;
+@property (nonatomic, strong) NSString *date;
 @property (nonatomic, strong) NSString *content;
 @property (nonatomic, strong) NSString *titleID;
+@property (nonatomic, strong) NSString *URLID;
+
+@property (nonatomic, strong) NSString *naviTitleName;
+@property (nonatomic, strong) NSString *tabName;
 
 @property (nonatomic, strong) NSMutableString *contentTitle;
+
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *sidebarButton;
 @end
 

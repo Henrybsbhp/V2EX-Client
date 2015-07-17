@@ -12,6 +12,8 @@
 #import "contentTableViewCell.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "Reachability.h"
+#import "SWRevealViewController.h"
+#import "TFHpple.h"
 
 @interface ViewController ()
 
@@ -36,9 +38,19 @@
 
     [self getLatestTitle];
     
+    // Set the navigation item title name;
+    self.navigationItem.title = self.naviTitleName;
+    
     // Set the self-sizing UITableViewCell
     self.tableView.estimatedRowHeight = 71.0;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
+    
+    SWRevealViewController *revealViewController = self.revealViewController;
+    if (revealViewController) {
+        [self.sidebarButton setTarget: self.revealViewController];
+        [self.sidebarButton setAction: @selector(revealToggle:)];
+        [self.view addGestureRecognizer:self.revealViewController.panGestureRecognizer];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -70,13 +82,38 @@
     self.username = @"username";
     self.lastDate = @"lastDate";
     self.replies = @"replies";
-    self.createdDate = @"createdDate";
+    self.date = @"date";
     self.content = @"content";
     self.titleID = @"titleID";
+    self.URLID = @"URLID";
     
     self.myObject = [[NSMutableArray alloc] init];
+    NSString *item_data;
+    NSString *username_data;
+    NSString *node_data;
+    NSString *reply_data;
+    NSString *date_data;
+    NSString *avatar_data;
+    NSString *titleURL_data;
+    NSString *URLID_data;
     
-    NSData *jsonSource = [NSData dataWithContentsOfURL:[NSURL URLWithString:@"https://www.v2ex.com/api/topics/latest.json"]];
+    // 1
+    NSString *URLString = [NSString stringWithFormat:@"https://www.v2ex.com/?tab=%@", self.tabName];
+    
+    if (!self.tabName) {
+        URLString = @"https://www.v2ex.com/?tab=all";
+    }
+    
+    NSURL *tabURL = [NSURL URLWithString:URLString];
+    NSData *tabHTMLData = [NSData dataWithContentsOfURL:tabURL];
+    
+    // 2
+    TFHpple *tabParser = [TFHpple hppleWithHTMLData:tabHTMLData];
+    
+    // 3 Tile list
+    NSString *cellXPathQueryString = @"//div[@class='cell item']";
+    NSArray *cellNodes = [tabParser searchWithXPathQuery:cellXPathQueryString];
+    
     Reachability *networkReachability = [Reachability reachabilityForInternetConnection];
     NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
     
@@ -89,61 +126,87 @@
         [networkAlert show];
     }
     else {
-        id jsonObjects = [NSJSONSerialization JSONObjectWithData:jsonSource
-                                                         options:NSJSONReadingMutableContainers
-                                                           error:nil];
-        for (NSDictionary *dataDict in jsonObjects) {
+        for (TFHppleElement *element in cellNodes) {
         
             // Get the lastest titles
-            NSString *title_data = [dataDict objectForKey:@"title"];
-        
-            // Get the avatars of the members;
-            NSDictionary *member = [dataDict objectForKey:@"member"];
-            NSString *avatarURL = [member objectForKey:@"avatar_normal"];
-            NSString *memAvatar_data = [NSString stringWithFormat:@"http:%@", avatarURL];
-        
-            // Get the nodes
-            NSDictionary *nodes = [dataDict objectForKey:@"node"];
-            NSString *node_data = [nodes objectForKey:@"title"];
-        
-            // Get the username
-            NSString *username_data = [member objectForKey:@"username"];
-        
-            // Get the last modified date
-            NSString *lastDate_data = [dataDict objectForKey:@"last_touched"];
+            NSString *itemXPathQueryString = @"//span[@class='item_title']/a";
+            NSArray *itemNodes = [element searchWithXPathQuery:itemXPathQueryString];
+            for (TFHppleElement *element2 in itemNodes) {
+                item_data = [[element2 firstChild] content];
+                
+                titleURL_data = [element2 objectForKey:@"href"];
+                NSString *firstURLString;
+                NSArray *URLArray = [titleURL_data componentsSeparatedByString:@"#"];
+                if (URLArray.count > 1) {
+                    firstURLString = URLArray[0];
+                    
+                    NSArray *firstURLArray = [firstURLString componentsSeparatedByString:@"/"];
+                    if (firstURLArray.count > 2) {
+                        URLID_data = firstURLArray[2];
+                    }
+                }
+                
+                NSLog(@"TITLE: %@", item_data);
+                NSLog(@"TITLEURL: %@", titleURL_data);
+                NSLog(@"URL ID: %@", URLID_data);
+            }
             
-            // Get the created date
-            NSString *createdDate_data = [dataDict objectForKey:@"created"];
-        
-            // Get the replies
-            NSString *replies_data = [dataDict objectForKey:@"replies"];
+            // Get the username lists
+            NSString *usernameXPathQueryString = @"//span[@class='small fade']/strong[1]/a";
+            NSArray *usernameNodes = [element searchWithXPathQuery:usernameXPathQueryString];
+            for (TFHppleElement *element3 in usernameNodes) {
+                username_data = [[element3 firstChild] content];
+                NSLog(@"USERNAME: %@", username_data);
+            }
             
-            // Get the content
-            NSString *content_data = [dataDict objectForKey:@"content_rendered"];
+            // Get the node lists
+            NSString *nodeXPathQueryString = @"//a[@class='node']";
+            NSArray *nodeNodes = [element searchWithXPathQuery:nodeXPathQueryString];
+            for (TFHppleElement *element4 in nodeNodes) {
+                node_data = [[element4 firstChild] content];
+                NSLog(@"NODE: %@", node_data);
+            }
             
-            // Get the title ID
-            NSNumber *titleIDNum = [dataDict objectForKey:@"id"];
-            NSString *titleID_data = [NSString stringWithFormat:@"%@", titleIDNum];
+            // Get the number of replies
+            NSString *replyXPathQueryString = @"//a[@class='count_livid']";
+            NSArray *replyNodes = [element searchWithXPathQuery:replyXPathQueryString];
+            if (replyNodes.count == 0) {
+                reply_data = @"0";
+            }
+            else {
+                for (TFHppleElement *element5 in replyNodes) {
+                    reply_data = [[element5 firstChild] content];
+                    NSLog(@"REPLY: %@", reply_data);
+                }
+            }
             
-        
-            NSLog(@"TITLE: %@", title_data);
-            NSLog(@"AVATAR: %@", memAvatar_data);
-            NSLog(@"NODE: %@", node_data);
-            NSLog(@"USERNAME: %@", username_data);
-            NSLog(@"LASTDATE: %@", lastDate_data);
-            NSLog(@"REPLIES: %@", replies_data);
-            NSLog(@"TITLEID: %@", titleID_data);
-        
-            self.dictionary = [NSDictionary dictionaryWithObjectsAndKeys:title_data, self.item,
-                          memAvatar_data, self.memAvatar,
-                          node_data, self.node,
-                          username_data, self.username,
-                          lastDate_data, self.lastDate,
-                          replies_data, self.replies,
-                          createdDate_data, self.createdDate,
-                          content_data, self.content,
-                          titleID_data, self.titleID, nil];
-        
+            // Get the reply date;
+            NSString *replyDateXPathQueryString = @"//span[@class='small fade']";
+            NSArray *replyDateNodes = [element searchWithXPathQuery:replyDateXPathQueryString];
+            for (TFHppleElement *element6 in replyDateNodes) {
+                NSString *dateDataString = [element6 content];
+                NSArray *dateArray = [dateDataString componentsSeparatedByString:@"  •  "];
+                if (dateArray.count > 2) {
+                    date_data = dateArray[2];
+                } else {
+                    date_data = [dateDataString stringByReplacingOccurrencesOfString:@"  •  (.*?)$" withString:@""];
+                }
+                NSLog(@"DATETEMPSTRING: %@", date_data);
+            }
+            
+            // Get the avatar lists
+            NSString *avatarXPathQueryString = @"//img[@class='avatar']";
+            NSArray *avatarNodes = [element searchWithXPathQuery:avatarXPathQueryString];
+            for (TFHppleElement *element7 in avatarNodes) {
+                avatar_data = [NSString stringWithFormat:@"https:%@", [element7 objectForKey:@"src"]];
+                
+                NSLog(@"AVATAR: %@", avatar_data);
+            }
+            
+            self.dictionary = [NSDictionary dictionaryWithObjectsAndKeys:item_data, self.item, username_data, self.username,
+                                                                         node_data, self.node, reply_data, self.replies,
+                                                                         date_data, self.date, avatar_data, self.memAvatar,
+                                                                         titleURL_data, self.titleID, URLID_data, self.URLID, nil];
             [self.myObject addObject:self.dictionary];
         }
     }
@@ -155,7 +218,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-        return [self.myObject count];
+    return [self.myObject count];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -191,7 +254,8 @@
     textUsername = [tmpDict objectForKey:self.username];
     
     // Get and convert the last modified timestamp to NSDate
-    double timestampcvt = [[tmpDict objectForKey:self.lastDate] doubleValue];
+    NSMutableString *readableTime = [NSMutableString stringWithFormat:@"%@", [tmpDict objectForKey:self.date]];
+    /*
     NSTimeInterval timestamp = (NSTimeInterval)timestampcvt;
     NSDate *updateTimestamp = [NSDate dateWithTimeIntervalSince1970:timestamp];
     
@@ -218,8 +282,7 @@
         intervalTime = sinceNow / 86400;
         readableTime = [NSString stringWithFormat:@"%id", intervalTime];
     }
-    
-    NSLog(@"%@", readableTime);
+    */
     
     // Get the replies item and display a UIImage in the repliesLabel
     NSMutableString *textReplies;
@@ -259,4 +322,6 @@
 
 
 
+- (IBAction)sidebarButton:(UIBarButtonItem *)sender {
+}
 @end

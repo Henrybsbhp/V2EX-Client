@@ -10,6 +10,7 @@
 #import "contenHeaderView.h"
 #import "repliesTableViewCell.h"
 #import <SDWebImage/UIImageView+WebCache.h>
+#import "TFHpple.h"
 
 @interface contentTableViewController ()
 {
@@ -39,7 +40,6 @@
     
     self.automaticallyAdjustsScrollViewInsets = YES;
     
-    [self getContentHeaderView];
     self.tableView.estimatedRowHeight = 66.0;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
 }
@@ -52,6 +52,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self getContentHeaderView];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -78,7 +79,7 @@
     repAvatar = @"repAvatar";
     
     myReplyObject = [[NSMutableArray alloc] init];
-    NSString *repID = [self.contentAssets objectForKeyedSubscript:self.titleID];
+    NSString *repID = [self.contentAssets objectForKeyedSubscript:self.URLID];
     NSString *jsonURL = [NSString stringWithFormat:@"https://www.v2ex.com/api/replies/show.json?topic_id=%@", repID];
     
     NSData *jsonSource = [NSData dataWithContentsOfURL:[NSURL URLWithString:jsonURL]];
@@ -107,11 +108,11 @@
         NSLog(@"REPLYDATE: %@", replydate_data);
         NSLog(@"REPLYCONTENT: %@", replyContent_data);
         NSLog(@"REPAVATAR: %@", repAvatar_data);
-    
+        
         repDictionary = [NSDictionary dictionaryWithObjectsAndKeys:replyID_data, replyID,
-                                                                   replydate_data, replyDate,
-                                                                   replyContent_data, replyContent,
-                                                                   repAvatar_data, repAvatar, nil];
+                         replydate_data, replyDate,
+                         replyContent_data, replyContent,
+                         repAvatar_data, repAvatar, nil];
         [myReplyObject addObject:repDictionary];
     }
     
@@ -148,9 +149,52 @@
 {
     contenHeaderView *headerView = (contenHeaderView *)self.tableView.tableHeaderView;
     
+    NSString *repID = [self.contentAssets objectForKeyedSubscript:self.titleID];
+    NSString *contents = [NSString stringWithFormat:@"https://www.v2ex.com%@", repID];
+    NSURL *contentsURL = [NSURL URLWithString:contents];
+    
+    NSData *contentsHTMLData = [NSData dataWithContentsOfURL:contentsURL];
+    
+    TFHpple *contentsParser = [TFHpple hppleWithHTMLData:contentsHTMLData];
+    
     // Get the node item
     NSMutableString *textNode;
     textNode = [self.contentAssets objectForKey:self.node];
+    
+    // Get the date nodes
+    NSString *dateXPathQueryString = @"//small[@class='gray']";
+    NSArray *dateNodes = [contentsParser searchWithXPathQuery:dateXPathQueryString];
+    NSString *readableDate;
+    for (TFHppleElement *element in dateNodes) {
+        NSString *dateDataString = [element content];
+        NSLog(@"DATE DATA STRING: %@", dateDataString);
+        NSArray *dateArray = [dateDataString componentsSeparatedByString:@" · "];
+        NSString *date_data;
+        if (dateArray.count > 2) {
+            date_data = dateArray[1];
+        } else {
+            date_data = [dateDataString stringByReplacingOccurrencesOfString:@" · (.*?)$" withString:@""];
+        }
+        
+        NSArray *dateStringArray = [date_data componentsSeparatedByString:@" "];
+        if (dateStringArray.count > 1) {
+            NSString *unitString;
+            NSString *subString = dateStringArray[1];
+            if ([subString containsString:@"分"]) {
+                unitString = @" 分钟前";
+            }
+            if ([subString containsString:@"小"]) {
+                unitString = @" 小时前";
+            }
+            if ([subString containsString:@"天"]) {
+                unitString = @" 天前";
+            }
+            
+            readableDate = [NSString stringWithFormat:@"%@%@", dateStringArray[0], unitString];
+        }
+    }
+    
+    NSLog(@"REPLY CONTENT URL: %@", contents);
     
     // Get the replies item
     NSMutableString *textReplies;
@@ -161,8 +205,13 @@
     textUsername = [self.contentAssets objectForKey:self.username];
     
     // Get the content item and convert to html format
-    NSMutableString *contentText;
-    contentText = [NSMutableString stringWithFormat:@"%@", [self.contentAssets objectForKey:self.content]];
+    NSString *contentXPathQueryString = @"//div[@class='topic_content']";
+    NSArray *contentNodes = [contentsParser searchWithXPathQuery:contentXPathQueryString];
+    NSString *contentText;
+    for (TFHppleElement *element2 in contentNodes) {
+        contentText = [element2 raw];
+    }
+    
     /* NSString *htmlString = [NSString stringWithFormat:@"<html><body>%@</body></html>", contentText];
      NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, } documentAttributes:nil error:nil];
      NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init]; // adjust the line spacing
@@ -172,7 +221,8 @@
     
     
     // Get and convert the last modified timestamp to NSDate
-    double timestampcvt = [[self.contentAssets objectForKey:self.createdDate] doubleValue];
+    
+    /*
     NSTimeInterval timestamp = (NSTimeInterval)timestampcvt;
     NSDate *updateTimestamp = [NSDate dateWithTimeIntervalSince1970:timestamp];
     
@@ -193,6 +243,7 @@
         intervalTime = sinceNow / 86400;
         readableTime = [NSString stringWithFormat:@"%id", intervalTime];
     }
+    */
     
     // Get the title item
     NSMutableString *textTitle;
@@ -214,7 +265,7 @@
     
     headerView.numOfRepLabel.text = textReplies;
     headerView.lzIDLabel.text = textUsername;
-    headerView.timeLabel.text = readableTime;
+    headerView.timeLabel.text = readableDate;
     
     // UITextView Settings
     headerView.contentString = contentText;
@@ -242,7 +293,7 @@
     // Get the replies content item.
     NSMutableString *textRepContent;
     textRepContent= [NSMutableString stringWithFormat:@"%@", [tmpDict objectForKey:replyContent]];
-    NSString *htmlStringContent = [NSString stringWithFormat:@"<html><body>%@</body></html>", textRepContent];
+    NSString *htmlStringContent = [NSString stringWithFormat:@"%@", textRepContent];
     NSMutableAttributedString *attrStrContent = [[NSMutableAttributedString alloc] initWithData:[htmlStringContent dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, } documentAttributes:nil error:nil];
     NSMutableParagraphStyle *paragraphStyleContent = [[NSMutableParagraphStyle alloc] init]; // adjust the line spacing
     [paragraphStyleContent setLineSpacing:3];
@@ -266,17 +317,17 @@
     NSString *readableTime2;
     if (sinceNow2 < 3600) {
         intervalTime2 = sinceNow2 / 60;
-        readableTime2 = [NSString stringWithFormat:@"%im", intervalTime2];
+        readableTime2 = [NSString stringWithFormat:@"%i 分钟前", intervalTime2];
     }
     else if (sinceNow2 > 3600 && sinceNow2 < 86400) {
         intervalTime2 = sinceNow2 / 3600;
-        readableTime2 = [NSString stringWithFormat:@"%ih", intervalTime2];
+        readableTime2 = [NSString stringWithFormat:@"%i 小时前", intervalTime2];
     }
     else if (sinceNow2 >= 86400) {
         intervalTime2 = sinceNow2 / 86400;
-        readableTime2 = [NSString stringWithFormat:@"%id", intervalTime2];
+        readableTime2 = [NSString stringWithFormat:@"%i 天前", intervalTime2];
     }
-    
+     
     // Settings of labels.
     cell2.repliesID.text = textRepID;
 

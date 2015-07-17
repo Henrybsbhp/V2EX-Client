@@ -43,6 +43,8 @@
 {
     _contentString = [contentString copy];
     
+    NSString *HTMLData = [[NSString alloc] init];
+    HTMLData = [_contentString stringByReplacingOccurrencesOfString:@"<br>" withString:@"\n"];
     [self.contentWebView loadHTMLString:[NSString stringWithFormat:
                                          @"<html> \n"
                                          "<head> \n"
@@ -51,7 +53,7 @@
                                          "</style> \n"
                                          "</head> \n"
                                          "<body>%@</body> \n"
-                                         "</html>", _contentString] baseURL:nil];
+                                         "</html>", HTMLData] baseURL:nil];
 }
 
 - (void)prepareForReuse
