@@ -17,6 +17,7 @@
 @property (weak, nonatomic) IBOutlet UIWebView *contentWebView;
 @property (nonatomic, weak) IBOutlet UILabel *timeLabel;
 @property (nonatomic, weak) IBOutlet UILabel *numOfRepLabel;
+@property (nonatomic, weak) IBOutlet UILabel *byLabel;
 
 @property (nonatomic, copy) NSString *contentString;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *contentWebViewHeightConstraint;

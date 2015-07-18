@@ -29,8 +29,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self pullToRefresh];
-    
     // Start pull to refresh automatically.
     // [self.refreshControl beginRefreshing];
     // CGPoint newOffset = CGPointMake(0, - 60);
@@ -73,54 +71,58 @@
 
 - (void)getTheReplies
 {
-    replyID = @"replyID";
-    replyDate = @"replyDate";
-    replyContent = @"replyContent";
-    repAvatar = @"repAvatar";
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        replyID = @"replyID";
+        replyDate = @"replyDate";
+        replyContent = @"replyContent";
+        repAvatar = @"repAvatar";
     
-    myReplyObject = [[NSMutableArray alloc] init];
-    NSString *repID = [self.contentAssets objectForKeyedSubscript:self.URLID];
-    NSString *jsonURL = [NSString stringWithFormat:@"https://www.v2ex.com/api/replies/show.json?topic_id=%@", repID];
+        myReplyObject = [[NSMutableArray alloc] init];
+        NSString *repID = [self.contentAssets objectForKeyedSubscript:self.URLID];
+        NSString *jsonURL = [NSString stringWithFormat:@"https://www.v2ex.com/api/replies/show.json?topic_id=%@", repID];
     
-    NSData *jsonSource = [NSData dataWithContentsOfURL:[NSURL URLWithString:jsonURL]];
+        NSData *jsonSource = [NSData dataWithContentsOfURL:[NSURL URLWithString:jsonURL]];
     
-    id jsonObjects = [NSJSONSerialization JSONObjectWithData:jsonSource
-                                                     options:NSJSONReadingMutableContainers
-                                                       error:nil];
+        id jsonObjects = [NSJSONSerialization JSONObjectWithData:jsonSource
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:nil];
     
-    for (NSDictionary *dataDick in jsonObjects) {
+        for (NSDictionary *dataDick in jsonObjects) {
         
-        // Get the replyer ID
-        NSDictionary *member = [dataDick objectForKey:@"member"];
-        NSString *replyID_data = [member objectForKey:@"username"];
+            // Get the replyer ID
+            NSDictionary *member = [dataDick objectForKey:@"member"];
+            NSString *replyID_data = [member objectForKey:@"username"];
         
-        // Get the rely date
-        NSString *replydate_data = [dataDick objectForKey:@"created"];
+            // Get the rely date
+            NSString *replydate_data = [dataDick objectForKey:@"created"];
+            
+            // Get the reply content
+            NSString *replyContent_data = [dataDick objectForKey:@"content_rendered"];
         
-        // Get the reply content
-        NSString *replyContent_data = [dataDick objectForKey:@"content_rendered"];
+            // Get the replyer avatar
+            NSString *avatarURL = [member objectForKey:@"avatar_normal"];
+            NSString *repAvatar_data = [NSString stringWithFormat:@"http:%@", avatarURL];
         
-        // Get the replyer avatar
-        NSString *avatarURL = [member objectForKey:@"avatar_normal"];
-        NSString *repAvatar_data = [NSString stringWithFormat:@"http:%@", avatarURL];
+            NSLog(@"REPLYID: %@", replyID_data);
+            NSLog(@"REPLYDATE: %@", replydate_data);
+            NSLog(@"REPLYCONTENT: %@", replyContent_data);
+            NSLog(@"REPAVATAR: %@", repAvatar_data);
         
-        NSLog(@"REPLYID: %@", replyID_data);
-        NSLog(@"REPLYDATE: %@", replydate_data);
-        NSLog(@"REPLYCONTENT: %@", replyContent_data);
-        NSLog(@"REPAVATAR: %@", repAvatar_data);
-        
-        repDictionary = [NSDictionary dictionaryWithObjectsAndKeys:replyID_data, replyID,
-                         replydate_data, replyDate,
-                         replyContent_data, replyContent,
-                         repAvatar_data, repAvatar, nil];
-        [myReplyObject addObject:repDictionary];
-    }
+            repDictionary = [NSDictionary dictionaryWithObjectsAndKeys:replyID_data, replyID,
+                             replydate_data, replyDate,
+                             replyContent_data, replyContent,
+                             repAvatar_data, repAvatar, nil];
+            [myReplyObject addObject:repDictionary];
+        }
     
-    // [self.refreshControl endRefreshing];
-    [self.tableView beginUpdates];
-    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationMiddle];
-    [self.tableView endUpdates];
-    [self.refreshControl endRefreshing];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // [self.refreshControl endRefreshing];
+            [self.tableView beginUpdates];
+            [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationMiddle];
+            [self.tableView endUpdates];
+            [self.refreshControl endRefreshing];
+        });
+    });
 }
 
 #pragma mark - Table view data source
@@ -149,130 +151,137 @@
 {
     contenHeaderView *headerView = (contenHeaderView *)self.tableView.tableHeaderView;
     
-    NSString *repID = [self.contentAssets objectForKeyedSubscript:self.titleID];
-    NSString *contents = [NSString stringWithFormat:@"https://www.v2ex.com%@", repID];
-    NSURL *contentsURL = [NSURL URLWithString:contents];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *repID = [self.contentAssets objectForKeyedSubscript:self.titleID];
+        NSString *contents = [NSString stringWithFormat:@"https://www.v2ex.com%@", repID];
+        NSURL *contentsURL = [NSURL URLWithString:contents];
     
-    NSData *contentsHTMLData = [NSData dataWithContentsOfURL:contentsURL];
+        NSData *contentsHTMLData = [NSData dataWithContentsOfURL:contentsURL];
     
-    TFHpple *contentsParser = [TFHpple hppleWithHTMLData:contentsHTMLData];
+        TFHpple *contentsParser = [TFHpple hppleWithHTMLData:contentsHTMLData];
     
-    // Get the node item
-    NSMutableString *textNode;
-    textNode = [self.contentAssets objectForKey:self.node];
+        // Get the node item
+        NSMutableString *textNode;
+        textNode = [self.contentAssets objectForKey:self.node];
     
-    // Get the date nodes
-    NSString *dateXPathQueryString = @"//small[@class='gray']";
-    NSArray *dateNodes = [contentsParser searchWithXPathQuery:dateXPathQueryString];
-    NSString *readableDate;
-    for (TFHppleElement *element in dateNodes) {
-        NSString *dateDataString = [element content];
-        NSLog(@"DATE DATA STRING: %@", dateDataString);
-        NSArray *dateArray = [dateDataString componentsSeparatedByString:@" · "];
-        NSString *date_data;
-        if (dateArray.count > 2) {
-            date_data = dateArray[1];
-        } else {
-            date_data = [dateDataString stringByReplacingOccurrencesOfString:@" · (.*?)$" withString:@""];
-        }
+        // Get the date nodes
+        NSString *dateXPathQueryString = @"//small[@class='gray']";
+        NSArray *dateNodes = [contentsParser searchWithXPathQuery:dateXPathQueryString];
+        NSString *readableDate;
+        for (TFHppleElement *element in dateNodes) {
+            NSString *dateDataString = [element content];
+            NSLog(@"DATE DATA STRING: %@", dateDataString);
+            NSArray *dateArray = [dateDataString componentsSeparatedByString:@" · "];
+            NSString *date_data;
+            if (dateArray.count > 2) {
+                date_data = dateArray[1];
+            } else {
+                date_data = [dateDataString stringByReplacingOccurrencesOfString:@" · (.*?)$" withString:@""];
+            }
         
-        NSArray *dateStringArray = [date_data componentsSeparatedByString:@" "];
-        if (dateStringArray.count > 1) {
-            NSString *unitString;
-            NSString *subString = dateStringArray[1];
-            if ([subString containsString:@"分"]) {
-                unitString = @" 分钟前";
-            }
-            if ([subString containsString:@"小"]) {
-                unitString = @" 小时前";
-            }
-            if ([subString containsString:@"天"]) {
-                unitString = @" 天前";
-            }
+            NSArray *dateStringArray = [date_data componentsSeparatedByString:@" "];
+            if (dateStringArray.count > 1) {
+                NSString *unitString;
+                NSString *subString = dateStringArray[1];
+                if ([subString containsString:@"分"]) {
+                    unitString = @" 分钟前";
+                }
+                if ([subString containsString:@"小"]) {
+                    unitString = @" 小时前";
+                }
+                if ([subString containsString:@"天"]) {
+                    unitString = @" 天前";
+                }
             
-            readableDate = [NSString stringWithFormat:@"%@%@", dateStringArray[0], unitString];
+                
+                readableDate = [NSString stringWithFormat:@"%@%@", dateStringArray[0], unitString];
+            }
         }
-    }
     
-    NSLog(@"REPLY CONTENT URL: %@", contents);
+        NSLog(@"REPLY CONTENT URL: %@", contents);
     
-    // Get the replies item
-    NSMutableString *textReplies;
-    textReplies = [NSMutableString stringWithFormat:@"%@ 回复", [self.contentAssets objectForKey:self.replies]];
+        // Get the replies item
+        NSMutableString *textReplies;
+        textReplies = [NSMutableString stringWithFormat:@"%@ 回复", [self.contentAssets objectForKey:self.replies]];
     
-    // Get the username item
-    NSMutableString *textUsername;
-    textUsername = [self.contentAssets objectForKey:self.username];
+        // Get the username item
+        NSMutableString *textUsername;
+        textUsername = [self.contentAssets objectForKey:self.username];
     
-    // Get the content item and convert to html format
-    NSString *contentXPathQueryString = @"//div[@class='topic_content']";
-    NSArray *contentNodes = [contentsParser searchWithXPathQuery:contentXPathQueryString];
-    NSString *contentText;
-    for (TFHppleElement *element2 in contentNodes) {
-        contentText = [element2 raw];
-    }
+        // Get the content item and convert to html format
+        NSString *contentXPathQueryString = @"//div[@class='topic_content']";
+        NSArray *contentNodes = [contentsParser searchWithXPathQuery:contentXPathQueryString];
+        NSString *contentText;
+        for (TFHppleElement *element2 in contentNodes) {
+            contentText = [element2 raw];
+        }
     
-    /* NSString *htmlString = [NSString stringWithFormat:@"<html><body>%@</body></html>", contentText];
-     NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, } documentAttributes:nil error:nil];
-     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init]; // adjust the line spacing
-     [paragraphStyle setLineSpacing:3];
-     [attrStr addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [attrStr length])];
-     */
+        /* NSString *htmlString = [NSString stringWithFormat:@"<html><body>%@</body></html>", contentText];
+         NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, } documentAttributes:nil error:nil];
+         NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init]; // adjust the line spacing
+         [paragraphStyle setLineSpacing:3];
+         [attrStr addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [attrStr length])];
+         */
     
     
-    // Get and convert the last modified timestamp to NSDate
+        // Get and convert the last modified timestamp to NSDate
     
-    /*
-    NSTimeInterval timestamp = (NSTimeInterval)timestampcvt;
-    NSDate *updateTimestamp = [NSDate dateWithTimeIntervalSince1970:timestamp];
+        /*
+         NSTimeInterval timestamp = (NSTimeInterval)timestampcvt;
+         NSDate *updateTimestamp = [NSDate dateWithTimeIntervalSince1970:timestamp];
     
-    NSDate *now = [NSDate date];
-    NSTimeInterval sinceNow = [now timeIntervalSinceDate:updateTimestamp];
+         NSDate *now = [NSDate date];
+         NSTimeInterval sinceNow = [now timeIntervalSinceDate:updateTimestamp];
     
-    int intervalTime;
-    NSString *readableTime;
-    if (sinceNow < 3600) {
-        intervalTime = sinceNow / 60;
-        readableTime = [NSString stringWithFormat:@"%im", intervalTime];
-    }
-    else if (sinceNow > 3600 && sinceNow < 86400) {
-        intervalTime = sinceNow / 3600;
-        readableTime = [NSString stringWithFormat:@"%ih", intervalTime];
-    }
-    else if (sinceNow >= 86400) {
-        intervalTime = sinceNow / 86400;
-        readableTime = [NSString stringWithFormat:@"%id", intervalTime];
-    }
-    */
+         int intervalTime;
+         NSString *readableTime;
+         if (sinceNow < 3600) {
+            intervalTime = sinceNow / 60;
+            readableTime = [NSString stringWithFormat:@"%im", intervalTime];
+         }
+         else if (sinceNow > 3600 && sinceNow < 86400) {
+            intervalTime = sinceNow / 3600;
+         readableTime = [NSString stringWithFormat:@"%ih", intervalTime];
+         }
+         else if (sinceNow >= 86400) {
+            intervalTime = sinceNow / 86400;
+            readableTime = [NSString stringWithFormat:@"%id", intervalTime];
+         }
+         */
     
-    // Get the title item
-    NSMutableString *textTitle;
-    textTitle = [self.contentAssets objectForKeyedSubscript:self.item];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Get the title item
+            NSMutableString *textTitle;
+            textTitle = [self.contentAssets objectForKeyedSubscript:self.item];
     
-    // Asynchronously Settings of the IDImageView
-    NSURL *url = [NSURL URLWithString:[self.contentAssets objectForKey:self.memAvatar]];
-    [headerView.avatarImageView setImageWithURL:url];
-    headerView.avatarImageView.layer.cornerRadius = 5.0;
-    headerView.avatarImageView.layer.masksToBounds = YES;
+            // Asynchronously Settings of the IDImageView
+            NSURL *url = [NSURL URLWithString:[self.contentAssets objectForKey:self.memAvatar]];
+            [headerView.avatarImageView setImageWithURL:url];
+            headerView.avatarImageView.layer.cornerRadius = 5.0;
+            headerView.avatarImageView.layer.masksToBounds = YES;
     
-    // Settings of the labels;
-    headerView.titleLabel.text = textTitle;
-    headerView.titleLabel.preferredMaxLayoutWidth = headerView.titleLabel.bounds.size.width;
+            // Settings of the labels;
+            headerView.titleLabel.text = textTitle;
+            headerView.titleLabel.preferredMaxLayoutWidth = headerView.titleLabel.bounds.size.width;
     
-    headerView.nodeLabel.layer.cornerRadius = 2.0;
-    headerView.nodeLabel.layer.masksToBounds = YES;
-    headerView.nodeLabel.text = textNode;
+            headerView.nodeLabel.layer.cornerRadius = 2.0;
+            headerView.nodeLabel.layer.masksToBounds = YES;
+            headerView.nodeLabel.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
+            headerView.nodeLabel.text = textNode;
     
-    headerView.numOfRepLabel.text = textReplies;
-    headerView.lzIDLabel.text = textUsername;
-    headerView.timeLabel.text = readableDate;
+            headerView.numOfRepLabel.text = textReplies;
+            headerView.lzIDLabel.text = textUsername;
+            headerView.timeLabel.text = readableDate;
+            headerView.byLabel.text = @"By";
     
-    // UITextView Settings
-    headerView.contentString = contentText;
-    
-    NSLog(@"CONTENTTITLE: %@", textTitle);
-    NSLog(@"CONTENTNODE: %@", textNode);
-    NSLog(@"CONTENTREPLYNUMS: %@", textReplies);
+            // UITextView Settings
+            headerView.contentString = contentText;
+        
+            NSLog(@"CONTENTTITLE: %@", textTitle);
+            NSLog(@"CONTENTNODE: %@", textNode);
+            NSLog(@"CONTENTREPLYNUMS: %@", textReplies);
+        });
+    });
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
