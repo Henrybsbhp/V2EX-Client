@@ -91,7 +91,7 @@
         self.titleID = @"titleID";
         self.URLID = @"URLID";
     
-        self.myObject = [[NSMutableArray alloc] init];
+        NSMutableArray *titleArray = [[NSMutableArray alloc] init];
         NSString *item_data;
         NSString *username_data;
         NSString *node_data;
@@ -106,6 +106,7 @@
     
         if (!self.tabName) {
             URLString = @"https://www.v2ex.com/?tab=all";
+            self.navigationItem.title = @"全部";
         }
     
         NSURL *tabURL = [NSURL URLWithString:URLString];
@@ -211,13 +212,15 @@
                                                                              node_data, self.node, reply_data, self.replies,
                                                                              date_data, self.date, avatar_data, self.memAvatar,
                                                                              titleURL_data, self.titleID, URLID_data, self.URLID, nil];
-                [self.myObject addObject:self.dictionary];
+                [titleArray addObject:self.dictionary];
             }
         }
         if (self.refreshControl) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.refreshControl endRefreshing];
+                self.myObject = [[NSMutableArray alloc] init];
+                self.myObject = titleArray;
                 [self.tableView reloadData];
+                [self.refreshControl endRefreshing];
             });
         }
     });

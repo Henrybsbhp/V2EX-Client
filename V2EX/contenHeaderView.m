@@ -41,7 +41,7 @@
                                          @"<html> \n"
                                          "<head> \n"
                                          "<style type=\"text/css\"> \n"
-                                         "body {font-family: \"helvetica\"; line-height: 22px; font-size: 14; color: #4a4a4a; margin: 0;}\n"
+                                         "body {font-family: \"helvetica\"; line-height: 22px; font-size: 16; color: #4a4a4a; margin: 0;}\n"
                                          "</style> \n"
                                          "</head> \n"
                                          "<body>%@</body> \n"

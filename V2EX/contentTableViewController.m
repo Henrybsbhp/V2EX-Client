@@ -342,7 +342,7 @@
 
     // UITextView Settings
     cell2.repliesTextView.attributedText = attrStrContent;
-    cell2.repliesTextView.font = [UIFont systemFontOfSize:13.0f];
+    cell2.repliesTextView.font = [UIFont systemFontOfSize:15.0f];
     cell2.repliesTextView.textColor = [UIColor darkGrayColor];
     // UITextView lose margin/padding
     cell2.repliesTextView.textContainerInset = UIEdgeInsetsMake(0, -5, -0, -5);
