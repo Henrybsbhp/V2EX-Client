@@ -50,6 +50,8 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    self.navigationItem.title = @"主题内容";
     [self getContentHeaderView];
 }
 
@@ -80,7 +82,7 @@
         myReplyObject = [[NSMutableArray alloc] init];
         NSString *repID = [self.contentAssets objectForKeyedSubscript:self.URLID];
         NSString *jsonURL = [NSString stringWithFormat:@"https://www.v2ex.com/api/replies/show.json?topic_id=%@", repID];
-    
+        
         NSData *jsonSource = [NSData dataWithContentsOfURL:[NSURL URLWithString:jsonURL]];
     
         id jsonObjects = [NSJSONSerialization JSONObjectWithData:jsonSource

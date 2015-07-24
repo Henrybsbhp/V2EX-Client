@@ -36,12 +36,7 @@
     [self.refreshControl beginRefreshing];
     CGPoint newOffset = CGPointMake(0, - 60);
     [self.tableView setContentOffset:newOffset animated:YES];
-    [self performSelector:@selector(getLatestTitle) withObject:nil afterDelay:2.0];
-
     [self getLatestTitle];
-    
-    // Set the navigation item title name;
-    self.navigationItem.title = self.naviTitleName;
     
     // Set the self-sizing UITableViewCell
     self.tableView.estimatedRowHeight = 71.0;
@@ -58,6 +53,12 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    // Set the navigation item title name;
+    self.navigationItem.title = self.naviTitleName;
+    if (!self.naviTitleName) {
+        self.navigationItem.title = @"全部";
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -106,7 +107,6 @@
     
         if (!self.tabName) {
             URLString = @"https://www.v2ex.com/?tab=all";
-            self.navigationItem.title = @"全部";
         }
     
         NSURL *tabURL = [NSURL URLWithString:URLString];
@@ -219,8 +219,8 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 self.myObject = [[NSMutableArray alloc] init];
                 self.myObject = titleArray;
-                [self.tableView reloadData];
                 [self.refreshControl endRefreshing];
+                [self.tableView reloadData];
             });
         }
     });
