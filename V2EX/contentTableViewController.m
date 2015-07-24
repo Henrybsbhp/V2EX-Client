@@ -29,13 +29,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // Start pull to refresh automatically.
-    // [self.refreshControl beginRefreshing];
-    // CGPoint newOffset = CGPointMake(0, - 60);
-    // [self.tableView setContentOffset:newOffset animated:YES];
-    self.tableView.tableFooterView = [[UIView alloc] init];
-    [self performSelector:@selector(getTheReplies) withObject:nil afterDelay:2.0];
-    
     self.automaticallyAdjustsScrollViewInsets = YES;
     
     self.tableView.estimatedRowHeight = 66.0;
@@ -53,6 +46,14 @@
     
     self.navigationItem.title = @"主题内容";
     [self getContentHeaderView];
+    
+    // Start pull to refresh automatically.
+    // [self.refreshControl beginRefreshing];
+    // CGPoint newOffset = CGPointMake(0, - 60);
+    // [self.tableView setContentOffset:newOffset animated:YES];
+    [self.refreshControl endRefreshing];
+    self.tableView.tableFooterView = [[UIView alloc] init];
+    [self performSelector:@selector(getTheReplies) withObject:nil afterDelay:2.0];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -119,10 +120,8 @@
     
         dispatch_async(dispatch_get_main_queue(), ^{
             // [self.refreshControl endRefreshing];
-            [self.tableView beginUpdates];
-            [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationMiddle];
-            [self.tableView endUpdates];
             [self.refreshControl endRefreshing];
+            [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationMiddle];
         });
     });
 }
@@ -214,8 +213,13 @@
         NSString *contentXPathQueryString = @"//div[@class='topic_content']";
         NSArray *contentNodes = [contentsParser searchWithXPathQuery:contentXPathQueryString];
         NSString *contentText;
+        
         for (TFHppleElement *element2 in contentNodes) {
             contentText = [element2 raw];
+        }
+        
+        if (contentText == nil) {
+            contentText = @"";
         }
     
         /* NSString *htmlString = [NSString stringWithFormat:@"<html><body>%@</body></html>", contentText];
