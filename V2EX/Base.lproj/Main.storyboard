@@ -216,18 +216,20 @@
                                     <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
-                                <webView contentMode="scaleToFill" horizontalHuggingPriority="751" verticalHuggingPriority="751" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="Nbf-YQ-tmo">
-                                    <rect key="frame" x="8" y="70" width="304" height="27"/>
+                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YJ4-3M-dHT">
+                                    <rect key="frame" x="8" y="69" width="304" height="27"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <constraints>
-                                        <constraint firstAttribute="width" constant="304" id="MxZ-4v-bwz"/>
-                                        <constraint firstAttribute="height" constant="27" id="oKr-5W-GG1"/>
+                                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="27" id="7zL-Q3-H3W"/>
+                                        <constraint firstAttribute="width" constant="304" id="zpK-QE-KKt"/>
                                     </constraints>
-                                    <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES"/>
-                                </webView>
+                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                </textView>
                             </subviews>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <constraints>
+                                <constraint firstAttribute="bottom" secondItem="YJ4-3M-dHT" secondAttribute="bottom" constant="10" id="7OV-Fw-sUA"/>
                                 <constraint firstItem="hfY-pM-QzB" firstAttribute="top" secondItem="tLy-UW-dOt" secondAttribute="top" constant="8" id="7jr-Bc-kR2"/>
                                 <constraint firstItem="hfY-pM-QzB" firstAttribute="leading" secondItem="qWL-HZ-WEX" secondAttribute="trailing" constant="8" id="Gx5-mN-ZT6"/>
                                 <constraint firstItem="Ond-4Z-a1P" firstAttribute="leading" secondItem="GlM-he-9NO" secondAttribute="trailing" constant="2" id="MaI-Ea-UJH"/>
@@ -237,22 +239,20 @@
                                 <constraint firstItem="OZS-6x-A64" firstAttribute="top" secondItem="qWL-HZ-WEX" secondAttribute="bottom" constant="12" id="YL6-fX-1Oy"/>
                                 <constraint firstItem="qWL-HZ-WEX" firstAttribute="leading" secondItem="tLy-UW-dOt" secondAttribute="leading" constant="8" id="ZfR-ut-9Xb"/>
                                 <constraint firstItem="Ond-4Z-a1P" firstAttribute="top" secondItem="qWL-HZ-WEX" secondAttribute="bottom" constant="12" id="Zgb-PH-nIP"/>
-                                <constraint firstItem="Nbf-YQ-tmo" firstAttribute="leading" secondItem="tLy-UW-dOt" secondAttribute="leading" constant="8" id="a0T-yS-fTh"/>
+                                <constraint firstItem="YJ4-3M-dHT" firstAttribute="top" secondItem="t1n-g4-tfc" secondAttribute="bottom" constant="12" id="afi-rp-bVp"/>
                                 <constraint firstItem="GlM-he-9NO" firstAttribute="top" secondItem="qWL-HZ-WEX" secondAttribute="bottom" constant="12" id="c9P-i5-k0L"/>
                                 <constraint firstItem="7MJ-Wl-tah" firstAttribute="top" secondItem="qWL-HZ-WEX" secondAttribute="bottom" constant="12" id="gEz-wr-eaD"/>
-                                <constraint firstItem="Nbf-YQ-tmo" firstAttribute="top" secondItem="t1n-g4-tfc" secondAttribute="bottom" constant="13" id="gcI-yH-lOc"/>
                                 <constraint firstItem="t1n-g4-tfc" firstAttribute="top" secondItem="qWL-HZ-WEX" secondAttribute="bottom" constant="12" id="hGs-4l-VDz"/>
-                                <constraint firstAttribute="trailing" secondItem="Nbf-YQ-tmo" secondAttribute="trailing" constant="8" id="heS-TR-ef5"/>
+                                <constraint firstAttribute="trailing" secondItem="YJ4-3M-dHT" secondAttribute="trailing" constant="8" id="hoM-C4-B5p"/>
                                 <constraint firstItem="GlM-he-9NO" firstAttribute="leading" secondItem="tLy-UW-dOt" secondAttribute="leading" constant="8" id="k5S-Y8-EWf"/>
-                                <constraint firstAttribute="bottom" secondItem="Nbf-YQ-tmo" secondAttribute="bottom" constant="9" id="mQG-nj-rPF"/>
                                 <constraint firstItem="qWL-HZ-WEX" firstAttribute="top" secondItem="tLy-UW-dOt" secondAttribute="top" constant="8" id="mqe-hu-Xcx"/>
+                                <constraint firstItem="YJ4-3M-dHT" firstAttribute="leading" secondItem="tLy-UW-dOt" secondAttribute="leading" constant="8" id="n8m-QD-MJc"/>
                                 <constraint firstItem="t1n-g4-tfc" firstAttribute="leading" secondItem="OZS-6x-A64" secondAttribute="trailing" constant="8" id="qNh-4x-gP3"/>
                             </constraints>
                             <connections>
                                 <outlet property="avatarImageView" destination="hfY-pM-QzB" id="Aey-bg-AIY"/>
                                 <outlet property="byLabel" destination="GlM-he-9NO" id="39y-eB-yFz"/>
-                                <outlet property="contentWebView" destination="Nbf-YQ-tmo" id="8gS-Jb-HCy"/>
-                                <outlet property="contentWebViewHeightConstraint" destination="oKr-5W-GG1" id="AXb-fu-DdC"/>
+                                <outlet property="contentTextView" destination="YJ4-3M-dHT" id="gai-wM-ygk"/>
                                 <outlet property="lzIDLabel" destination="Ond-4Z-a1P" id="voq-6A-eI5"/>
                                 <outlet property="nodeLabel" destination="t1n-g4-tfc" id="Jf3-9P-4jj"/>
                                 <outlet property="numOfRepLabel" destination="OZS-6x-A64" id="bAZ-2e-Q8n"/>

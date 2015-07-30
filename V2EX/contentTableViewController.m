@@ -210,7 +210,7 @@
         textUsername = [self.contentAssets objectForKey:self.username];
     
         // Get the content item and convert to html format
-        NSString *contentXPathQueryString = @"//div[@class='topic_content']";
+        NSString *contentXPathQueryString = @"//div[@class='topic_content'][1]";
         NSArray *contentNodes = [contentsParser searchWithXPathQuery:contentXPathQueryString];
         NSString *contentText;
         
@@ -221,6 +221,17 @@
         if (contentText == nil) {
             contentText = @"";
         }
+        
+        // Get the topic content item.
+        NSMutableString *textContent;
+        textContent= [NSMutableString stringWithFormat:@"%@", contentText];
+        NSString *htmlStringContent = [NSString stringWithFormat:@"%@", textContent];
+        NSMutableAttributedString *attrStrContent = [[NSMutableAttributedString alloc] initWithData:[htmlStringContent dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType } documentAttributes:nil error:nil];
+        NSMutableParagraphStyle *paragraphStyleContent = [[NSMutableParagraphStyle alloc] init]; // adjust the line spacing
+        [paragraphStyleContent setLineSpacing:3];
+        [attrStrContent addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"Helvetica" size:15] range:NSMakeRange(0, [attrStrContent length])];
+        [attrStrContent addAttribute:NSParagraphStyleAttributeName value:paragraphStyleContent range:NSMakeRange(0, [attrStrContent length])];
+        NSLog(@"ATTRSTR: %@", attrStrContent);
     
         /* NSString *htmlString = [NSString stringWithFormat:@"<html><body>%@</body></html>", contentText];
          NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, } documentAttributes:nil error:nil];
@@ -281,13 +292,29 @@
             headerView.byLabel.text = @"By";
     
             // UITextView Settings
-            headerView.contentString = contentText;
-        
-            NSLog(@"CONTENTTITLE: %@", textTitle);
-            NSLog(@"CONTENTNODE: %@", textNode);
-            NSLog(@"CONTENTREPLYNUMS: %@", textReplies);
+            headerView.contentTextView.attributedText = attrStrContent;
+            headerView.contentTextView.textColor = [UIColor darkGrayColor];
+            // UITextView without margin/padding
+            headerView.contentTextView.textContainerInset = UIEdgeInsetsMake(0, -5, -0, -5);
+            [headerView.contentTextView setTranslatesAutoresizingMaskIntoConstraints:NO];
+            
+            CGRect headerFrame = self.tableView.tableHeaderView.frame;
+            CGFloat contentTextViewHeight = [self textViewHeightForAttributedText:attrStrContent andWidth:304];
+            headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height;
+            NSLog(@"CONTENTWEBVIEWHEIGHT: %f", contentTextViewHeight);
+            headerView.frame = headerFrame;
+            self.tableView.tableHeaderView = headerView;
+            [headerView sizeToFit];
         });
     });
+}
+
+- (CGFloat)textViewHeightForAttributedText:(NSAttributedString *)text andWidth:(CGFloat)width
+{
+    UITextView *textView = [[UITextView alloc] init];
+    [textView setAttributedText:text];
+    CGSize size = [textView sizeThatFits:CGSizeMake(width, FLT_MAX)];
+    return size.height;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath

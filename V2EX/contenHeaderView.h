@@ -14,7 +14,7 @@
 @property (nonatomic, weak) IBOutlet UIImageView *avatarImageView;
 @property (nonatomic, weak) IBOutlet UILabel *nodeLabel;
 @property (nonatomic, weak) IBOutlet UILabel *lzIDLabel;
-@property (weak, nonatomic) IBOutlet UIWebView *contentWebView;
+@property (weak, nonatomic) IBOutlet UITextView *contentTextView;
 @property (nonatomic, weak) IBOutlet UILabel *timeLabel;
 @property (nonatomic, weak) IBOutlet UILabel *numOfRepLabel;
 @property (nonatomic, weak) IBOutlet UILabel *byLabel;

@@ -12,5 +12,6 @@
 @interface contentTableViewController : ViewController <UITableViewDelegate, UITableViewDataSource, UITextViewDelegate>
 
 @property (nonatomic, strong) NSDictionary *contentAssets;
+@property (nonatomic) CGFloat contentViewHeight;
 
 @end
