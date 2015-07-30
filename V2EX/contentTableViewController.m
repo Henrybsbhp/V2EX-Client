@@ -300,7 +300,7 @@
             
             CGRect headerFrame = self.tableView.tableHeaderView.frame;
             CGFloat contentTextViewHeight = [self textViewHeightForAttributedText:attrStrContent andWidth:304];
-            headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height;
+            headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 12;
             NSLog(@"CONTENTWEBVIEWHEIGHT: %f", contentTextViewHeight);
             headerView.frame = headerFrame;
             self.tableView.tableHeaderView = headerView;
