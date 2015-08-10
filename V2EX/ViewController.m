@@ -205,6 +205,7 @@
                 for (TFHppleElement *element7 in avatarNodes) {
                     avatar_data = [NSString stringWithFormat:@"https:%@", [element7 objectForKey:@"src"]];
                 
+                    
                     NSLog(@"AVATAR: %@", avatar_data);
                 }
             

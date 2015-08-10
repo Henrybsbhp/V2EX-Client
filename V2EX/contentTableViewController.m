@@ -166,11 +166,11 @@
         textNode = [self.contentAssets objectForKey:self.node];
     
         // Get the date nodes
-        NSString *dateXPathQueryString = @"//small[@class='gray']";
+        NSString *dateXPathQueryString = @"//small[@class='gray'][1]";
         NSArray *dateNodes = [contentsParser searchWithXPathQuery:dateXPathQueryString];
         NSString *readableDate;
         for (TFHppleElement *element in dateNodes) {
-            NSString *dateDataString = [element content];
+            NSString *dateDataString = [element raw];
             NSLog(@"DATE DATA STRING: %@", dateDataString);
             NSArray *dateArray = [dateDataString componentsSeparatedByString:@" · "];
             NSString *date_data;
@@ -225,12 +225,8 @@
         // Get the topic content item.
         NSMutableString *textContent;
         textContent= [NSMutableString stringWithFormat:@"%@", contentText];
-        NSString *htmlStringContent = [NSString stringWithFormat:@"%@", textContent];
-        NSMutableAttributedString *attrStrContent = [[NSMutableAttributedString alloc] initWithData:[htmlStringContent dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType } documentAttributes:nil error:nil];
-        NSMutableParagraphStyle *paragraphStyleContent = [[NSMutableParagraphStyle alloc] init]; // adjust the line spacing
-        [paragraphStyleContent setLineSpacing:3];
-        [attrStrContent addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"Helvetica" size:15] range:NSMakeRange(0, [attrStrContent length])];
-        [attrStrContent addAttribute:NSParagraphStyleAttributeName value:paragraphStyleContent range:NSMakeRange(0, [attrStrContent length])];
+        NSString *styledHTML = [self styledHTMLwithHTML:contentText];
+        NSMutableAttributedString *attrStrContent = [self attributedStringWithHTML:styledHTML];
         NSLog(@"ATTRSTR: %@", attrStrContent);
     
         /* NSString *htmlString = [NSString stringWithFormat:@"<html><body>%@</body></html>", contentText];
@@ -280,7 +276,6 @@
             // Settings of the labels;
             headerView.titleLabel.text = textTitle;
             headerView.titleLabel.preferredMaxLayoutWidth = headerView.titleLabel.bounds.size.width;
-    
             headerView.nodeLabel.layer.cornerRadius = 2.0;
             headerView.nodeLabel.layer.masksToBounds = YES;
             headerView.nodeLabel.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
@@ -293,27 +288,51 @@
     
             // UITextView Settings
             headerView.contentTextView.attributedText = attrStrContent;
-            headerView.contentTextView.textColor = [UIColor darkGrayColor];
+            headerView.contentTextView.textColor = [UIColor colorWithRed:(82/255.f) green:(82/255.f) blue:(82/255.f) alpha:1.0f];
             // UITextView without margin/padding
             headerView.contentTextView.textContainerInset = UIEdgeInsetsMake(0, -5, -0, -5);
             [headerView.contentTextView setTranslatesAutoresizingMaskIntoConstraints:NO];
             
             CGRect headerFrame = self.tableView.tableHeaderView.frame;
             CGFloat contentTextViewHeight = [self textViewHeightForAttributedText:attrStrContent andWidth:304];
-            headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 12;
-            NSLog(@"CONTENTWEBVIEWHEIGHT: %f", contentTextViewHeight);
-            headerView.frame = headerFrame;
-            self.tableView.tableHeaderView = headerView;
-            [headerView sizeToFit];
+            
+            if (contentTextViewHeight == 30.000000) {
+                headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 35;
+                NSLog(@"TITLELABELHEIGHT: %f", contentTextViewHeight);
+                headerView.frame = headerFrame;
+                self.tableView.tableHeaderView = headerView;
+                [headerView sizeToFit];
+            } else {
+                headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 20;
+                NSLog(@"TITLELABELHEIGHT: %f", contentTextViewHeight);
+                headerView.frame = headerFrame;
+                self.tableView.tableHeaderView = headerView;
+                [headerView sizeToFit];
+            }
         });
     });
 }
 
+- (NSString *)styledHTMLwithHTML:(NSString *)HTML
+{
+    NSString *style = @"<meta charset=\"Unicode\"><style> body { font-family: 'HelveticaNeue'; line-height: 22px; font-size: 15px; } b {font-family: 'MarkerFelt-Wide'; }</style>";
+    
+    return [NSString stringWithFormat:@"%@%@", style, HTML];
+}
+
+- (NSMutableAttributedString *)attributedStringWithHTML:(NSString *)HTML
+{
+    NSDictionary *options = @{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType };
+    return [[NSMutableAttributedString alloc] initWithData:[HTML dataUsingEncoding:NSUnicodeStringEncoding] options:options documentAttributes:NULL error:NULL];
+}
+
 - (CGFloat)textViewHeightForAttributedText:(NSAttributedString *)text andWidth:(CGFloat)width
 {
+    float fPadding = 10.0; // 5.0px x 2
+    CGSize constraint = CGSizeMake(width + fPadding, CGFLOAT_MAX);
     UITextView *textView = [[UITextView alloc] init];
     [textView setAttributedText:text];
-    CGSize size = [textView sizeThatFits:CGSizeMake(width, FLT_MAX)];
+    CGSize size = [textView sizeThatFits:CGSizeMake(constraint.width, FLT_MAX)];
     return size.height;
 }
 
