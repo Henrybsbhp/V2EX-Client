@@ -11,6 +11,8 @@
 #import "repliesTableViewCell.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "TFHpple.h"
+#import "MyContentImageAttachment.h"
+#import "MyReplyImageAttachment.h"
 
 @interface contentTableViewController ()
 {
@@ -323,7 +325,45 @@
 - (NSMutableAttributedString *)attributedStringWithHTML:(NSString *)HTML
 {
     NSDictionary *options = @{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType };
-    return [[NSMutableAttributedString alloc] initWithData:[HTML dataUsingEncoding:NSUnicodeStringEncoding] options:options documentAttributes:NULL error:NULL];
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithData:[HTML dataUsingEncoding:NSUnicodeStringEncoding] options:options documentAttributes:NULL error:NULL];
+    [attributedString enumerateAttribute:NSAttachmentAttributeName
+                                 inRange:NSMakeRange(0, attributedString.length)
+                                 options:NSAttributedStringEnumerationReverse
+                              usingBlock:^(NSTextAttachment *value, NSRange range, BOOL *stop) {
+                                  if ([value isKindOfClass:[NSTextAttachment class]]) {
+                                      [attributedString removeAttribute:NSAttachmentAttributeName range:range];
+                                      
+                                      MyContentImageAttachment *attachment = [MyContentImageAttachment new];
+                                      attachment.image = value.image;
+                                      attachment.bounds = value.bounds;
+                                      attachment.fileWrapper = value.fileWrapper;
+                                      
+                                      [attributedString addAttribute:NSAttachmentAttributeName value:attachment range:range];
+                                  }
+                              }];
+    return attributedString;
+}
+
+- (NSMutableAttributedString *)replyAttributedStringWithHTML:(NSString *)HTML
+{
+    NSDictionary *options = @{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType };
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithData:[HTML dataUsingEncoding:NSUnicodeStringEncoding] options:options documentAttributes:NULL error:NULL];
+    [attributedString enumerateAttribute:NSAttachmentAttributeName
+                                 inRange:NSMakeRange(0, attributedString.length)
+                                 options:NSAttributedStringEnumerationReverse
+                              usingBlock:^(NSTextAttachment *value, NSRange range, BOOL *stop) {
+                                  if ([value isKindOfClass:[NSTextAttachment class]]) {
+                                      [attributedString removeAttribute:NSAttachmentAttributeName range:range];
+                                      
+                                      MyReplyImageAttachment *attachment = [MyReplyImageAttachment new];
+                                      attachment.image = value.image;
+                                      attachment.bounds = value.bounds;
+                                      attachment.fileWrapper = value.fileWrapper;
+                                      
+                                      [attributedString addAttribute:NSAttachmentAttributeName value:attachment range:range];
+                                  }
+                              }];
+    return attributedString;
 }
 
 - (CGFloat)textViewHeightForAttributedText:(NSAttributedString *)text andWidth:(CGFloat)width
@@ -355,10 +395,8 @@
     NSMutableString *textRepContent;
     textRepContent= [NSMutableString stringWithFormat:@"%@", [tmpDict objectForKey:replyContent]];
     NSString *htmlStringContent = [NSString stringWithFormat:@"%@", textRepContent];
-    NSMutableAttributedString *attrStrContent = [[NSMutableAttributedString alloc] initWithData:[htmlStringContent dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, } documentAttributes:nil error:nil];
-    NSMutableParagraphStyle *paragraphStyleContent = [[NSMutableParagraphStyle alloc] init]; // adjust the line spacing
-    [paragraphStyleContent setLineSpacing:3];
-    [attrStrContent addAttribute:NSParagraphStyleAttributeName value:paragraphStyleContent range:NSMakeRange(0, [attrStrContent length])];
+    NSString *styledHTML = [self styledHTMLwithHTML:htmlStringContent];
+    NSMutableAttributedString *attrStrContent = [self replyAttributedStringWithHTML:styledHTML];
     
     // Asynchronously Settings of the IDImageView
     NSURL *url2 = [NSURL URLWithString:[tmpDict objectForKey:repAvatar]];

@@ -9,7 +9,6 @@
 #import "ViewController.h"
 #import "AllTableViewCell.h"
 #import "contentTableViewController.h"
-#import "contentTableViewCell.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "Reachability.h"
 #import "SWRevealViewController.h"

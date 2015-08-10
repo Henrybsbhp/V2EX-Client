@@ -14,7 +14,8 @@
 		FA821C481B03473D00B53533 /* NavigationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FA821C471B03473D00B53533 /* NavigationViewController.m */; };
 		FA821C4E1B03A74A00B53533 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FA821C4D1B03A74A00B53533 /* ViewController.m */; };
 		FA821C571B04944400B53533 /* AllTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FA821C561B04944400B53533 /* AllTableViewCell.m */; };
-		FAA2A8C21B11F9A3001B906F /* contentTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FAA2A8C11B11F9A3001B906F /* contentTableViewCell.m */; };
+		FA859C941B78FABB00941EC0 /* MyContentImageAttachment.m in Sources */ = {isa = PBXBuildFile; fileRef = FA859C931B78FABB00941EC0 /* MyContentImageAttachment.m */; };
+		FA859C971B790ABF00941EC0 /* MyReplyImageAttachment.m in Sources */ = {isa = PBXBuildFile; fileRef = FA859C961B790ABF00941EC0 /* MyReplyImageAttachment.m */; };
 		FAA2A8C51B13023D001B906F /* repliesTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FAA2A8C41B13023D001B906F /* repliesTableViewCell.m */; };
 		FAC086121B10C88B007ED446 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC086111B10C88B007ED446 /* Reachability.m */; };
 		FAC086151B11E7E0007ED446 /* contentTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC086141B11E7E0007ED446 /* contentTableViewController.m */; };
@@ -71,8 +72,10 @@
 		FA821C4D1B03A74A00B53533 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		FA821C551B04944400B53533 /* AllTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AllTableViewCell.h; sourceTree = "<group>"; };
 		FA821C561B04944400B53533 /* AllTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AllTableViewCell.m; sourceTree = "<group>"; };
-		FAA2A8C01B11F9A3001B906F /* contentTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contentTableViewCell.h; sourceTree = "<group>"; };
-		FAA2A8C11B11F9A3001B906F /* contentTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = contentTableViewCell.m; sourceTree = "<group>"; };
+		FA859C921B78FABB00941EC0 /* MyContentImageAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyContentImageAttachment.h; sourceTree = "<group>"; };
+		FA859C931B78FABB00941EC0 /* MyContentImageAttachment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyContentImageAttachment.m; sourceTree = "<group>"; };
+		FA859C951B790ABF00941EC0 /* MyReplyImageAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyReplyImageAttachment.h; sourceTree = "<group>"; };
+		FA859C961B790ABF00941EC0 /* MyReplyImageAttachment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyReplyImageAttachment.m; sourceTree = "<group>"; };
 		FAA2A8C31B13023D001B906F /* repliesTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = repliesTableViewCell.h; sourceTree = "<group>"; };
 		FAA2A8C41B13023D001B906F /* repliesTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = repliesTableViewCell.m; sourceTree = "<group>"; };
 		FAC086101B10C88B007ED446 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
@@ -286,8 +289,10 @@
 				FA821C471B03473D00B53533 /* NavigationViewController.m */,
 				FAC086131B11E7E0007ED446 /* contentTableViewController.h */,
 				FAC086141B11E7E0007ED446 /* contentTableViewController.m */,
-				FAA2A8C01B11F9A3001B906F /* contentTableViewCell.h */,
-				FAA2A8C11B11F9A3001B906F /* contentTableViewCell.m */,
+				FA859C921B78FABB00941EC0 /* MyContentImageAttachment.h */,
+				FA859C931B78FABB00941EC0 /* MyContentImageAttachment.m */,
+				FA859C951B790ABF00941EC0 /* MyReplyImageAttachment.h */,
+				FA859C961B790ABF00941EC0 /* MyReplyImageAttachment.m */,
 				FA79DEEC1B402E2800AA13A6 /* contenHeaderView.h */,
 				FA79DEED1B402E2800AA13A6 /* contenHeaderView.m */,
 				FAA2A8C31B13023D001B906F /* repliesTableViewCell.h */,
@@ -460,6 +465,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA859C941B78FABB00941EC0 /* MyContentImageAttachment.m in Sources */,
 				FA821C481B03473D00B53533 /* NavigationViewController.m in Sources */,
 				FAEEB9871B1071B600D4B039 /* UIImageView+HighlightedWebCache.m in Sources */,
 				FAEEB9881B1071B600D4B039 /* UIImageView+WebCache.m in Sources */,
@@ -476,9 +482,9 @@
 				FAEEB9811B1071B600D4B039 /* SDWebImageManager.m in Sources */,
 				FAEEB9891B1071B600D4B039 /* UIView+WebCacheOperation.m in Sources */,
 				FAEEB9831B1071B600D4B039 /* UIButton+WebCache.m in Sources */,
+				FA859C971B790ABF00941EC0 /* MyReplyImageAttachment.m in Sources */,
 				FAEEB9851B1071B600D4B039 /* UIImage+MultiFormat.m in Sources */,
 				FA821C571B04944400B53533 /* AllTableViewCell.m in Sources */,
-				FAA2A8C21B11F9A3001B906F /* contentTableViewCell.m in Sources */,
 				FAC086121B10C88B007ED446 /* Reachability.m in Sources */,
 				FAEEB9801B1071B600D4B039 /* SDWebImageDownloaderOperation.m in Sources */,
 				FAEEB9841B1071B600D4B039 /* UIImage+GIF.m in Sources */,
