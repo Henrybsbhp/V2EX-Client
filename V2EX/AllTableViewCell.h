@@ -14,6 +14,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *usernameLabel;
 @property (weak, nonatomic) IBOutlet UILabel *timeLabel;
 @property (weak, nonatomic) IBOutlet UILabel *repliesLabel;
+@property (weak, nonatomic) IBOutlet UIView *borderView;
 
 @property (weak, nonatomic) IBOutlet UIImageView *IDImageView;
 

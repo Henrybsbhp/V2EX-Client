@@ -14,7 +14,7 @@
 {
     CGRect bounds = [super attachmentBoundsForTextContainer:textContainer proposedLineFragment:lineFrag glyphPosition:position characterIndex:charIndex];
     
-    static CGFloat maxWidth = 270;
+    CGFloat maxWidth = lineFrag.size.width;
     CGFloat imageWidth = MIN(maxWidth, bounds.size.width);
     bounds.size = CGSizeMake(imageWidth, imageWidth / bounds.size.width * bounds.size.height);
     return bounds;

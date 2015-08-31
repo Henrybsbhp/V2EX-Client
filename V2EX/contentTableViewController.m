@@ -13,6 +13,7 @@
 #import "TFHpple.h"
 #import "MyContentImageAttachment.h"
 #import "MyReplyImageAttachment.h"
+#import "SWRevealViewController.h"
 
 @interface contentTableViewController ()
 {
@@ -22,6 +23,9 @@
     NSString *replyDate;
     NSString *replyContent;
     NSString *repAvatar;
+    
+    UIActivityIndicatorView *indicator;
+    contenHeaderView *headerView;
 }
 
 @end
@@ -30,6 +34,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self getContentHeaderView];
+    [self getContentTextView];
     
     self.automaticallyAdjustsScrollViewInsets = YES;
     
@@ -40,6 +47,7 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    self.tableView.separatorStyle = NO;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -47,7 +55,7 @@
     [super viewWillAppear:animated];
     
     self.navigationItem.title = @"主题内容";
-    [self getContentHeaderView];
+
     
     // Start pull to refresh automatically.
     // [self.refreshControl beginRefreshing];
@@ -55,7 +63,17 @@
     // [self.tableView setContentOffset:newOffset animated:YES];
     [self.refreshControl endRefreshing];
     self.tableView.tableFooterView = [[UIView alloc] init];
-    [self performSelector:@selector(getTheReplies) withObject:nil afterDelay:2.0];
+    
+    // Disabel the panGesture in this view.
+    self.revealViewController.panGestureRecognizer.enabled = NO;
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    // enable the panGesture while leave this view.
+    self.revealViewController.panGestureRecognizer.enabled = YES;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -74,6 +92,51 @@
                   forControlEvents:UIControlEventValueChanged];
 }
 
+- (void)getContentHeaderView
+{
+    self.tableView.tableHeaderView = headerView;
+    
+    NSLog(@"CONTENTASSETS: %@", self.contentAssets);
+    
+    // Get the node item
+    NSMutableString *textNode;
+    textNode = [self.contentAssets objectForKeyedSubscript:@"node"];
+    
+    // Get the replies item
+    NSMutableString *textReplies;
+    textReplies = [NSMutableString stringWithFormat:@"%@ 回复", [self.contentAssets objectForKeyedSubscript:@"replies"]];
+    
+    // Get the username item
+    NSMutableString *textUsername;
+    textUsername = [self.contentAssets objectForKeyedSubscript:@"username"];
+    
+    // Get the title item
+    NSMutableString *textTitle;
+    textTitle = [self.contentAssets objectForKeyedSubscript:@"title"];
+    NSLog(@"CONTENT TITLE IS %@", textTitle);
+    
+    // Asynchronously Settings of the IDImageView
+    NSURL *url = [NSURL URLWithString:[self.contentAssets objectForKeyedSubscript:@"memAvatar"]];
+    [headerView.avatarImageView setImageWithURL:url];
+    headerView.avatarImageView.layer.cornerRadius = 5.0;
+    headerView.avatarImageView.layer.masksToBounds = YES;
+    
+    // Settings of the labels;
+    headerView.titleLabel.text = textTitle;
+    headerView.titleLabel.preferredMaxLayoutWidth = headerView.titleLabel.bounds.size.width;
+    headerView.nodeLabel.layer.cornerRadius = 2.0;
+    headerView.nodeLabel.layer.masksToBounds = YES;
+    headerView.nodeLabel.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
+    headerView.borderView.layer.cornerRadius = 2.0;
+    headerView.borderView.layer.masksToBounds = YES;
+    headerView.borderView.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
+    headerView.nodeLabel.text = textNode;
+    
+    headerView.numOfRepLabel.text = textReplies;
+    headerView.lzIDLabel.text = textUsername;
+    headerView.byLabel.text = @"By";
+}
+
 - (void)getTheReplies
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -83,7 +146,7 @@
         repAvatar = @"repAvatar";
     
         myReplyObject = [[NSMutableArray alloc] init];
-        NSString *repID = [self.contentAssets objectForKeyedSubscript:self.URLID];
+        NSString *repID = [self.contentAssets objectForKeyedSubscript:@"URLID"];
         NSString *jsonURL = [NSString stringWithFormat:@"https://www.v2ex.com/api/replies/show.json?topic_id=%@", repID];
         
         NSData *jsonSource = [NSData dataWithContentsOfURL:[NSURL URLWithString:jsonURL]];
@@ -106,7 +169,7 @@
         
             // Get the replyer avatar
             NSString *avatarURL = [member objectForKey:@"avatar_normal"];
-            NSString *repAvatar_data = [NSString stringWithFormat:@"http:%@", avatarURL];
+            NSString *repAvatar_data = [NSString stringWithFormat:@"https:%@", avatarURL];
         
             NSLog(@"REPLYID: %@", replyID_data);
             NSLog(@"REPLYDATE: %@", replydate_data);
@@ -150,9 +213,9 @@
 //     return view;
 // }
 
-- (void)getContentHeaderView
+
+- (void)getContentTextView
 {
-    contenHeaderView *headerView = (contenHeaderView *)self.tableView.tableHeaderView;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *repID = [self.contentAssets objectForKeyedSubscript:self.titleID];
@@ -162,10 +225,6 @@
         NSData *contentsHTMLData = [NSData dataWithContentsOfURL:contentsURL];
     
         TFHpple *contentsParser = [TFHpple hppleWithHTMLData:contentsHTMLData];
-    
-        // Get the node item
-        NSMutableString *textNode;
-        textNode = [self.contentAssets objectForKey:self.node];
     
         // Get the date nodes
         NSString *dateXPathQueryString = @"//small[@class='gray'][1]";
@@ -201,35 +260,20 @@
             }
         }
     
-        NSLog(@"REPLY CONTENT URL: %@", contents);
     
-        // Get the replies item
-        NSMutableString *textReplies;
-        textReplies = [NSMutableString stringWithFormat:@"%@ 回复", [self.contentAssets objectForKey:self.replies]];
-    
-        // Get the username item
-        NSMutableString *textUsername;
-        textUsername = [self.contentAssets objectForKey:self.username];
-    
-        // Get the content item and convert to html format
+        // Get the content item and convert to html format, then set the NSMutableAttributedString in the main thread.
         NSString *contentXPathQueryString = @"//div[@class='topic_content'][1]";
         NSArray *contentNodes = [contentsParser searchWithXPathQuery:contentXPathQueryString];
         NSString *contentText;
-        
+
         for (TFHppleElement *element2 in contentNodes) {
             contentText = [element2 raw];
+            break;
         }
         
         if (contentText == nil) {
             contentText = @"";
         }
-        
-        // Get the topic content item.
-        NSMutableString *textContent;
-        textContent= [NSMutableString stringWithFormat:@"%@", contentText];
-        NSString *styledHTML = [self styledHTMLwithHTML:contentText];
-        NSMutableAttributedString *attrStrContent = [self attributedStringWithHTML:styledHTML];
-        NSLog(@"ATTRSTR: %@", attrStrContent);
     
         /* NSString *htmlString = [NSString stringWithFormat:@"<html><body>%@</body></html>", contentText];
          NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, } documentAttributes:nil error:nil];
@@ -265,28 +309,17 @@
          */
     
         dispatch_async(dispatch_get_main_queue(), ^{
-            // Get the title item
             NSMutableString *textTitle;
             textTitle = [self.contentAssets objectForKeyedSubscript:self.item];
-    
-            // Asynchronously Settings of the IDImageView
-            NSURL *url = [NSURL URLWithString:[self.contentAssets objectForKey:self.memAvatar]];
-            [headerView.avatarImageView setImageWithURL:url];
-            headerView.avatarImageView.layer.cornerRadius = 5.0;
-            headerView.avatarImageView.layer.masksToBounds = YES;
-    
-            // Settings of the labels;
-            headerView.titleLabel.text = textTitle;
-            headerView.titleLabel.preferredMaxLayoutWidth = headerView.titleLabel.bounds.size.width;
-            headerView.nodeLabel.layer.cornerRadius = 2.0;
-            headerView.nodeLabel.layer.masksToBounds = YES;
-            headerView.nodeLabel.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
-            headerView.nodeLabel.text = textNode;
-    
-            headerView.numOfRepLabel.text = textReplies;
-            headerView.lzIDLabel.text = textUsername;
+            
             headerView.timeLabel.text = readableDate;
-            headerView.byLabel.text = @"By";
+            
+            // Get the topic content item.
+            NSMutableString *textContent;
+            textContent= [NSMutableString stringWithFormat:@"%@", contentText];
+            NSString *styledHTML = [self styledHTMLwithHTML:textContent];
+            NSMutableAttributedString *attrStrContent = [self attributedStringWithHTML:styledHTML];
+            NSLog(@"ATTRSTR: %@", attrStrContent);
     
             // UITextView Settings
             headerView.contentTextView.attributedText = attrStrContent;
@@ -294,22 +327,28 @@
             // UITextView without margin/padding
             headerView.contentTextView.textContainerInset = UIEdgeInsetsMake(0, -5, -0, -5);
             [headerView.contentTextView setTranslatesAutoresizingMaskIntoConstraints:NO];
+            headerView.contentSepView.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
+            
+            if ([contentText isEqualToString:@""]) {
+                [headerView.contentSepView removeFromSuperview];
+                [headerView.contentTextView removeFromSuperview];
+            }
             
             CGRect headerFrame = self.tableView.tableHeaderView.frame;
-            CGFloat contentTextViewHeight = [self textViewHeightForAttributedText:attrStrContent andWidth:304];
+            CGFloat contentTextViewHeight = [self textViewHeightForAttributedText:attrStrContent andWidth:headerView.contentTextView.frame.size.width];
             
-            if (contentTextViewHeight == 30.000000) {
-                headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 35;
-                NSLog(@"TITLELABELHEIGHT: %f", contentTextViewHeight);
-                headerView.frame = headerFrame;
-                self.tableView.tableHeaderView = headerView;
-                [headerView sizeToFit];
-            } else {
-                headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 20;
-                NSLog(@"TITLELABELHEIGHT: %f", contentTextViewHeight);
-                headerView.frame = headerFrame;
-                self.tableView.tableHeaderView = headerView;
-                [headerView sizeToFit];
+            headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 20;
+            NSLog(@"TITLELABELHEIGHT: %f", contentTextViewHeight);
+            headerView.frame = headerFrame;
+            self.tableView.tableHeaderView = headerView;
+            [headerView sizeToFit];
+            
+            if (textTitle) {
+                indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+                indicator.frame = CGRectMake(0, headerFrame.size.height, self.tableView.frame.size.width, 21);
+                [self.tableView addSubview:indicator];
+                [indicator startAnimating];
+                [self performSelector:@selector(getTheReplies) withObject:nil afterDelay:2.0];
             }
         });
     });
@@ -376,6 +415,27 @@
     return size.height;
 }
 
+
+/* Setup the cell separator line margins
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // Remove seperator inset
+    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+        [cell setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    // Prevent the cell from inheriting the Table View's margin settings
+    if ([cell respondsToSelector:@selector(setPreservesSuperviewLayoutMargins:)]) {
+        [cell setPreservesSuperviewLayoutMargins:NO];
+    }
+    
+    // Explictly set your cell's layout margins
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
+}
+*/
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     repliesTableViewCell *cell2 = [tableView dequeueReusableCellWithIdentifier:@"repliesTableViewCell"];
@@ -426,10 +486,10 @@
         intervalTime2 = sinceNow2 / 86400;
         readableTime2 = [NSString stringWithFormat:@"%i 天前", intervalTime2];
     }
-     
+    
     // Settings of labels.
     cell2.repliesID.text = textRepID;
-
+    
     // UITextView Settings
     cell2.repliesTextView.attributedText = attrStrContent;
     cell2.repliesTextView.font = [UIFont systemFontOfSize:15.0f];
@@ -440,11 +500,21 @@
     
     cell2.repliesTime.text = readableTime2;
     
+    // Setup the cell separator line margins
+    // cell2.preservesSuperviewLayoutMargins = NO;
+    
+    UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 1)];
+    separatorView.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
+    [cell2.contentView addSubview:separatorView];
+    
     cell2.layer.shouldRasterize = YES;
     cell2.layer.rasterizationScale = [UIScreen mainScreen].scale;
     
+    [indicator stopAnimating];
+    
     return cell2;
 }
+
 
 /*
 // Override to support conditional editing of the table view.

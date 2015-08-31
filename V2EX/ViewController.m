@@ -40,13 +40,6 @@
     // Set the self-sizing UITableViewCell
     self.tableView.estimatedRowHeight = 71.0;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
-    
-    SWRevealViewController *revealViewController = self.revealViewController;
-    if (revealViewController) {
-        [self.sidebarButton setTarget: self.revealViewController];
-        [self.sidebarButton setAction: @selector(revealToggle:)];
-        [self.view addGestureRecognizer:self.revealViewController.panGestureRecognizer];
-    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -57,6 +50,13 @@
     self.navigationItem.title = self.naviTitleName;
     if (!self.naviTitleName) {
         self.navigationItem.title = @"全部";
+    }
+    
+    SWRevealViewController *revealViewController = self.revealViewController;
+    if (revealViewController) {
+        [self.sidebarButton setTarget: self.revealViewController];
+        [self.sidebarButton setAction: @selector(revealToggle:)];
+        [self.tableView addGestureRecognizer:self.revealViewController.panGestureRecognizer];
     }
 }
 
@@ -118,105 +118,107 @@
         NSString *cellXPathQueryString = @"//div[@class='cell item']";
         NSArray *cellNodes = [tabParser searchWithXPathQuery:cellXPathQueryString];
     
-        Reachability *networkReachability = [Reachability reachabilityForInternetConnection];
-        NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
-    
-        if (networkStatus == NotReachable) {
-            UIAlertView *networkAlert = [[UIAlertView alloc] initWithTitle:@"Error"
-                                                                   message:@"No internet connection, please make sure you have connected to the internet."
-                                                                  delegate:nil
-                                                         cancelButtonTitle:@"OK"
-                                                         otherButtonTitles:nil, nil];
-            [networkAlert show];
-        }
-        else {
-            for (TFHppleElement *element in cellNodes) {
         
-                // Get the lastest titles
-                NSString *itemXPathQueryString = @"//span[@class='item_title']/a";
-                NSArray *itemNodes = [element searchWithXPathQuery:itemXPathQueryString];
-                for (TFHppleElement *element2 in itemNodes) {
-                    item_data = [[element2 firstChild] content];
+
+        for (TFHppleElement *element in cellNodes) {
+            
+            // Get the lastest titles
+            NSString *itemXPathQueryString = @"//span[@class='item_title']/a";
+            NSArray *itemNodes = [element searchWithXPathQuery:itemXPathQueryString];
+            for (TFHppleElement *element2 in itemNodes) {
+                item_data = [[element2 firstChild] content];
                 
-                    titleURL_data = [element2 objectForKey:@"href"];
-                    NSString *firstURLString;
-                    NSArray *URLArray = [titleURL_data componentsSeparatedByString:@"#"];
-                    if (URLArray.count > 1) {
-                        firstURLString = URLArray[0];
-                        
-                        NSArray *firstURLArray = [firstURLString componentsSeparatedByString:@"/"];
-                        if (firstURLArray.count > 2) {
-                            URLID_data = firstURLArray[2];
-                        }
+                titleURL_data = [element2 objectForKey:@"href"];
+                NSString *firstURLString;
+                NSArray *URLArray = [titleURL_data componentsSeparatedByString:@"#"];
+                if (URLArray.count > 1) {
+                    firstURLString = URLArray[0];
+                    
+                    NSArray *firstURLArray = [firstURLString componentsSeparatedByString:@"/"];
+                    if (firstURLArray.count > 2) {
+                        URLID_data = firstURLArray[2];
                     }
+                }
                 
-                    NSLog(@"TITLE: %@", item_data);
-                    NSLog(@"TITLEURL: %@", titleURL_data);
-                    NSLog(@"URL ID: %@", URLID_data);
-                }
+                NSLog(@"TITLE: %@", item_data);
+                NSLog(@"TITLEURL: %@", titleURL_data);
+                NSLog(@"URL ID: %@", URLID_data);
+            }
             
-                // Get the username lists
-                NSString *usernameXPathQueryString = @"//span[@class='small fade']/strong[1]/a";
-                NSArray *usernameNodes = [element searchWithXPathQuery:usernameXPathQueryString];
-                for (TFHppleElement *element3 in usernameNodes) {
-                    username_data = [[element3 firstChild] content];
-                    NSLog(@"USERNAME: %@", username_data);
-                }
+            // Get the username lists
+            NSString *usernameXPathQueryString = @"//span[@class='small fade']/strong[1]/a";
+            NSArray *usernameNodes = [element searchWithXPathQuery:usernameXPathQueryString];
+            for (TFHppleElement *element3 in usernameNodes) {
+                username_data = [[element3 firstChild] content];
+                NSLog(@"USERNAME: %@", username_data);
+            }
             
-                // Get the node lists
-                NSString *nodeXPathQueryString = @"//a[@class='node']";
-                NSArray *nodeNodes = [element searchWithXPathQuery:nodeXPathQueryString];
-                for (TFHppleElement *element4 in nodeNodes) {
-                    node_data = [[element4 firstChild] content];
-                    NSLog(@"NODE: %@", node_data);
-                }
+            // Get the node lists
+            NSString *nodeXPathQueryString = @"//a[@class='node']";
+            NSArray *nodeNodes = [element searchWithXPathQuery:nodeXPathQueryString];
+            for (TFHppleElement *element4 in nodeNodes) {
+                node_data = [[element4 firstChild] content];
+                NSLog(@"NODE: %@", node_data);
+            }
             
-                // Get the number of replies
-                NSString *replyXPathQueryString = @"//a[@class='count_livid']";
-                NSArray *replyNodes = [element searchWithXPathQuery:replyXPathQueryString];
-                if (replyNodes.count == 0) {
-                    reply_data = @"0";
+            // Get the number of replies
+            NSString *replyXPathQueryString = @"//a[@class='count_livid']";
+            NSArray *replyNodes = [element searchWithXPathQuery:replyXPathQueryString];
+            if (replyNodes.count == 0) {
+                reply_data = @"0";
+            }
+            else {
+                for (TFHppleElement *element5 in replyNodes) {
+                    reply_data = [[element5 firstChild] content];
+                    NSLog(@"REPLY: %@", reply_data);
                 }
-                else {
-                    for (TFHppleElement *element5 in replyNodes) {
-                        reply_data = [[element5 firstChild] content];
-                        NSLog(@"REPLY: %@", reply_data);
-                    }
-                }
+            }
             
-                // Get the reply date;
-                NSString *replyDateXPathQueryString = @"//span[@class='small fade']";
-                NSArray *replyDateNodes = [element searchWithXPathQuery:replyDateXPathQueryString];
-                for (TFHppleElement *element6 in replyDateNodes) {
-                    NSString *dateDataString = [element6 content];
-                    NSArray *dateArray = [dateDataString componentsSeparatedByString:@"  •  "];
-                    if (dateArray.count > 2) {
-                        date_data = dateArray[2];
-                    } else {
-                        date_data = [dateDataString stringByReplacingOccurrencesOfString:@"  •  (.*?)$" withString:@""];
-                    }
-                    NSLog(@"DATETEMPSTRING: %@", date_data);
+            // Get the reply date;
+            NSString *replyDateXPathQueryString = @"//span[@class='small fade']";
+            NSArray *replyDateNodes = [element searchWithXPathQuery:replyDateXPathQueryString];
+            for (TFHppleElement *element6 in replyDateNodes) {
+                NSString *dateDataString = [element6 content];
+                NSArray *dateArray = [dateDataString componentsSeparatedByString:@"  •  "];
+                if (dateArray.count > 2) {
+                    date_data = dateArray[2];
+                } else {
+                    date_data = [dateDataString stringByReplacingOccurrencesOfString:@"  •  (.*?)$" withString:@""];
                 }
+                NSLog(@"DATETEMPSTRING: %@", date_data);
+            }
             
-                // Get the avatar lists
-                NSString *avatarXPathQueryString = @"//img[@class='avatar']";
-                NSArray *avatarNodes = [element searchWithXPathQuery:avatarXPathQueryString];
-                for (TFHppleElement *element7 in avatarNodes) {
-                    avatar_data = [NSString stringWithFormat:@"https:%@", [element7 objectForKey:@"src"]];
+            // Get the avatar lists
+            NSString *avatarXPathQueryString = @"//img[@class='avatar']";
+            NSArray *avatarNodes = [element searchWithXPathQuery:avatarXPathQueryString];
+            for (TFHppleElement *element7 in avatarNodes) {
+                avatar_data = [NSString stringWithFormat:@"https:%@", [element7 objectForKey:@"src"]];
                 
                     
-                    NSLog(@"AVATAR: %@", avatar_data);
-                }
-            
-                self.dictionary = [NSDictionary dictionaryWithObjectsAndKeys:item_data, self.item, username_data, self.username,
-                                                                             node_data, self.node, reply_data, self.replies,
-                                                                             date_data, self.date, avatar_data, self.memAvatar,
-                                                                             titleURL_data, self.titleID, URLID_data, self.URLID, nil];
-                [titleArray addObject:self.dictionary];
+                NSLog(@"AVATAR: %@", avatar_data);
             }
+            
+            self.dictionary = [NSDictionary dictionaryWithObjectsAndKeys:item_data, self.item, username_data, self.username,
+                                                                         node_data, self.node, reply_data, self.replies,
+                                                                         date_data, self.date, avatar_data, self.memAvatar,
+                                                                         titleURL_data, self.titleID, URLID_data, self.URLID, nil];
+            [titleArray addObject:self.dictionary];
         }
+
         if (self.refreshControl) {
             dispatch_async(dispatch_get_main_queue(), ^{
+                Reachability *networkReachability = [Reachability reachabilityForInternetConnection];
+                NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
+                
+                if (networkStatus == NotReachable) {
+                    UIAlertView *networkAlert = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                                           message:@"No internet connection, please make sure you have connected to the internet."
+                                                                          delegate:nil
+                                                                 cancelButtonTitle:@"OK"
+                                                                 otherButtonTitles:nil, nil];
+                    [networkAlert show];
+                }
+                
                 self.myObject = [[NSMutableArray alloc] init];
                 self.myObject = titleArray;
                 [self.refreshControl endRefreshing];
@@ -313,6 +315,10 @@
     // Settings of the nodeLabel
     cell.nodeLabel.layer.cornerRadius = 2.0;
     cell.nodeLabel.layer.masksToBounds = YES;
+    cell.nodeLabel.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
+    cell.borderView.layer.cornerRadius = 2.0;
+    cell.borderView.layer.masksToBounds = YES;
+    cell.borderView.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
     cell.nodeLabel.text = textNode;
     
     // Settings of the usernameLabel
