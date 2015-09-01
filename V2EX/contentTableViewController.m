@@ -28,6 +28,8 @@
     contenHeaderView *headerView;
 }
 
+@property (nonatomic, strong) NSMutableArray *myObject;
+
 @end
 
 @implementation contentTableViewController
@@ -48,6 +50,7 @@
 {
     [super viewDidAppear:animated];
     self.tableView.separatorStyle = NO;
+    [self.tableView reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -185,8 +188,10 @@
     
         dispatch_async(dispatch_get_main_queue(), ^{
             // [self.refreshControl endRefreshing];
+            self.myObject = [NSMutableArray new];
+            self.myObject = myReplyObject;
             [self.refreshControl endRefreshing];
-            [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationMiddle];
+            [self.tableView reloadData];
         });
     });
 }
@@ -438,14 +443,14 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    repliesTableViewCell *cell2 = [tableView dequeueReusableCellWithIdentifier:@"repliesTableViewCell"];
+    repliesTableViewCell *cell2 = [tableView dequeueReusableCellWithIdentifier:@"repliesTableViewCell" forIndexPath:indexPath];
     
     if (cell2 == nil) {
         cell2 = [[repliesTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"repliesTableViewCell"];
     }
     
     // The second UITableViewCell, cell2.
-    NSDictionary *tmpDict = [myReplyObject objectAtIndex:indexPath.row];
+    NSDictionary *tmpDict = [self.myObject objectAtIndex:indexPath.row];
     
     // Get the replyer ID item.
     NSMutableString *textRepID;

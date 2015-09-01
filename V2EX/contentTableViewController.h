@@ -13,5 +13,6 @@
 
 @property (nonatomic, strong) NSDictionary *contentAssets;
 @property (nonatomic) CGFloat contentViewHeight;
+@property NSMutableDictionary *estimatedRowHeightCache;
 
 @end
