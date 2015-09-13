@@ -14,9 +14,16 @@
 #import "MyContentImageAttachment.h"
 #import "MyReplyImageAttachment.h"
 #import "SWRevealViewController.h"
+#import "UITableView+FDTemplateLayoutCell.h"
+#import "Reachability.h"
+#import "SVWebViewControllerActivityChrome.h"
+#import "SVWebViewControllerActivitySafari.h"
+#import "SVWebViewControllerActivityCopyLink.h"
+#import "SVWebViewController.h"
 
 @interface contentTableViewController ()
 {
+    // Replies item
     NSMutableArray *myReplyObject;
     NSDictionary *repDictionary;
     NSString *replyID;
@@ -24,11 +31,18 @@
     NSString *replyContent;
     NSString *repAvatar;
     
+    // Contents item
+    NSDictionary *contDictionary;
+    NSString *contentDate;
+    NSString *topicContent;
+    
     UIActivityIndicatorView *indicator;
+    UIActivityIndicatorView *indicator2;
     contenHeaderView *headerView;
 }
 
-@property (nonatomic, strong) NSMutableArray *myObject;
+@property (nonatomic, strong) NSMutableArray *myObject2;
+@property (nonatomic, strong) NSDictionary *myContentObject;
 
 @end
 
@@ -38,19 +52,25 @@
     [super viewDidLoad];
     
     [self getContentHeaderView];
-    [self getContentTextView];
+    
+    if ([self.exchangeID isEqualToString:@"交易"]) {
+        [self getContentTextViewSpecial];
+    } else {
+        [self getContentTextView];
+    }
     
     self.automaticallyAdjustsScrollViewInsets = YES;
     
     self.tableView.estimatedRowHeight = 66.0;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
+    
+    self.tableView.backgroundColor = [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
     self.tableView.separatorStyle = NO;
-    [self.tableView reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -88,11 +108,59 @@
 {
     // Initialize the refresh control
     self.refreshControl = [[UIRefreshControl alloc] init];
-    self.refreshControl.backgroundColor = [UIColor whiteColor];
+    self.refreshControl.backgroundColor = [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1];
     self.refreshControl.tintColor= [UIColor lightGrayColor];
-    [self.refreshControl addTarget:self
-                            action:@selector(getTheReplies)
-                  forControlEvents:UIControlEventValueChanged];
+    if ([self.exchangeID isEqualToString:@"交易"]) {
+        [self.refreshControl addTarget:self
+                                action:@selector(getContentTextViewSpecial)
+                      forControlEvents:UIControlEventValueChanged];
+    } else {
+        [self.refreshControl addTarget:self
+                                action:@selector(getContentTextView)
+                      forControlEvents:UIControlEventValueChanged];
+    }
+}
+
+- (void)showConnectionAlertView
+{
+    // Create a view to hold the label and add images or whatever, place it off screen at -100
+    UIView *alertView = [[UIView alloc] initWithFrame:CGRectMake(0, -100, CGRectGetWidth(self.view.bounds), 25)];
+    alertView.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.7f];
+    
+    // Create a label to display the message and add it to the alertView
+    UILabel *theMessage = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(alertView.bounds), CGRectGetHeight(alertView.bounds))];
+    theMessage.text = @"无网络连接，请稍候重试";
+    theMessage.font = [UIFont systemFontOfSize:12];
+    theMessage.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.0f];
+    theMessage.textColor = [UIColor whiteColor];
+    theMessage.textAlignment = NSTextAlignmentCenter;
+    [alertView addSubview:theMessage];
+    
+    // Add the alertView to the view
+    [self.view addSubview:alertView];
+    
+    // Create the ending frame or where you want it to end up on screen, in this case 0 y origin
+    CGRect newFrm = alertView.frame;
+    newFrm.origin.y = 0;
+    
+    // Animate it in
+    [UIView animateWithDuration:0.4f animations:^{
+        alertView.frame = newFrm;
+    }];
+    
+    [self performSelector:@selector(dismissViewController:) withObject:alertView afterDelay:2.0f];
+}
+
+- (void)dismissViewController:(UIView *)view
+{
+    CGRect newFrm = view.frame;
+    newFrm.origin.y = -100;
+    
+    [UIView animateWithDuration:0.4f animations:^{
+        view.frame = newFrm;
+    } completion:^(BOOL finished){
+        [view removeFromSuperview];
+    }];
 }
 
 - (void)getContentHeaderView
@@ -126,18 +194,29 @@
     
     // Settings of the labels;
     headerView.titleLabel.text = textTitle;
+    headerView.titleLabel.textColor = [UIColor colorWithRed:0.26 green:0.26 blue:0.25 alpha:1];
     headerView.titleLabel.preferredMaxLayoutWidth = headerView.titleLabel.bounds.size.width;
+    
+    headerView.nodeLabel.text = textNode;
+    headerView.nodeLabel.textColor = [UIColor colorWithRed:0.94 green:0.93 blue:0.91 alpha:1];
     headerView.nodeLabel.layer.cornerRadius = 2.0;
     headerView.nodeLabel.layer.masksToBounds = YES;
-    headerView.nodeLabel.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
+    headerView.nodeLabel.backgroundColor = [UIColor colorWithRed:0.67 green:0.67 blue:0.65 alpha:1];
     headerView.borderView.layer.cornerRadius = 2.0;
     headerView.borderView.layer.masksToBounds = YES;
-    headerView.borderView.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
-    headerView.nodeLabel.text = textNode;
+    headerView.borderView.backgroundColor = [UIColor colorWithRed:0.67 green:0.67 blue:0.65 alpha:1];
     
     headerView.numOfRepLabel.text = textReplies;
     headerView.lzIDLabel.text = textUsername;
     headerView.byLabel.text = @"By";
+    
+    headerView.backgroundColor = [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1];
+    
+    indicator2 = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    CGFloat yPoint = headerView.nodeLabel.intrinsicContentSize.height + headerView.titleLabel.intrinsicContentSize.height + 35;
+    indicator2.frame = CGRectMake(0, yPoint, self.tableView.frame.size.width, 21);
+    [headerView addSubview:indicator2];
+    [indicator2 startAnimating];
 }
 
 - (void)getTheReplies
@@ -153,6 +232,7 @@
         NSString *jsonURL = [NSString stringWithFormat:@"https://www.v2ex.com/api/replies/show.json?topic_id=%@", repID];
         
         NSData *jsonSource = [NSData dataWithContentsOfURL:[NSURL URLWithString:jsonURL]];
+        
     
         id jsonObjects = [NSJSONSerialization JSONObjectWithData:jsonSource
                                                          options:NSJSONReadingMutableContainers
@@ -163,35 +243,76 @@
             // Get the replyer ID
             NSDictionary *member = [dataDick objectForKey:@"member"];
             NSString *replyID_data = [member objectForKey:@"username"];
+            
+            // Get the replies content item.
+            NSMutableString *textRepContent;
+            textRepContent= [NSMutableString stringWithFormat:@"%@", [dataDick objectForKey:@"content_rendered"]];
+            NSString *htmlStringContent = [NSString stringWithFormat:@"%@", textRepContent];
+            NSString *styledHTML = [self styledHTMLwithHTML:htmlStringContent];
+            NSMutableAttributedString *attrStrContent_data = [self replyAttributedStringWithHTML:styledHTML];
         
             // Get the rely date
-            NSString *replydate_data = [dataDick objectForKey:@"created"];
+            NSString *repDate = [dataDick objectForKey:@"created"];
+            double timestampcvt2 = [repDate doubleValue];
+            NSTimeInterval timestamp2 = (NSTimeInterval)timestampcvt2;
+            NSDate *updateTimestamp2 = [NSDate dateWithTimeIntervalSince1970:timestamp2];
             
-            // Get the reply content
-            NSString *replyContent_data = [dataDick objectForKey:@"content_rendered"];
+            NSDate *now2 = [NSDate date];
+            NSTimeInterval sinceNow2 = [now2 timeIntervalSinceDate:updateTimestamp2];
+            
+            int intervalTime2;
+            NSString *replyDate_data;
+            if (sinceNow2 < 3600) {
+                intervalTime2 = sinceNow2 / 60;
+                replyDate_data = [NSString stringWithFormat:@"%i 分钟前", intervalTime2];
+            }
+            else if (sinceNow2 > 3600 && sinceNow2 < 86400) {
+                intervalTime2 = sinceNow2 / 3600;
+                replyDate_data = [NSString stringWithFormat:@"%i 小时前", intervalTime2];
+            }
+            else if (sinceNow2 >= 86400) {
+                intervalTime2 = sinceNow2 / 86400;
+                replyDate_data = [NSString stringWithFormat:@"%i 天前", intervalTime2];
+            }
         
             // Get the replyer avatar
             NSString *avatarURL = [member objectForKey:@"avatar_normal"];
             NSString *repAvatar_data = [NSString stringWithFormat:@"https:%@", avatarURL];
-        
+    
             NSLog(@"REPLYID: %@", replyID_data);
-            NSLog(@"REPLYDATE: %@", replydate_data);
-            NSLog(@"REPLYCONTENT: %@", replyContent_data);
+            NSLog(@"REPLYDATE: %@", replyDate_data);
+            NSLog(@"REPLYCONTENT: %@", attrStrContent_data);
             NSLog(@"REPAVATAR: %@", repAvatar_data);
         
             repDictionary = [NSDictionary dictionaryWithObjectsAndKeys:replyID_data, replyID,
-                             replydate_data, replyDate,
-                             replyContent_data, replyContent,
-                             repAvatar_data, repAvatar, nil];
+                                                                       replyDate_data, replyDate,
+                                                                       attrStrContent_data, replyContent,
+                                                                       repAvatar_data, repAvatar, nil];
             [myReplyObject addObject:repDictionary];
+        }
+        if (myReplyObject) {
+            self.myObject2 = [NSMutableArray new];
+            self.myObject2 = myReplyObject;
         }
     
         dispatch_async(dispatch_get_main_queue(), ^{
-            // [self.refreshControl endRefreshing];
-            self.myObject = [NSMutableArray new];
-            self.myObject = myReplyObject;
-            [self.refreshControl endRefreshing];
-            [self.tableView reloadData];
+                
+            Reachability *networkReachability = [Reachability reachabilityForInternetConnection];
+            NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
+            
+            if (networkStatus == NotReachable) {
+                [self showConnectionAlertView];
+                
+                [self.refreshControl endRefreshing];
+            } else if (!jsonSource) {
+                [self showConnectionAlertView];
+                
+                [self.refreshControl endRefreshing];
+            } else {
+                [indicator stopAnimating];
+                [self.refreshControl endRefreshing];
+                [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationMiddle];
+            }
         });
     });
 }
@@ -208,7 +329,6 @@
 {
     // Return the number of rows in the section.
     return [myReplyObject count];
-
 }
 
 // Display a blank UIView at the footer cells which not cotain the data.
@@ -218,6 +338,133 @@
 //     return view;
 // }
 
+
+- (void)getContentTextViewSpecial
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        contentDate = @"contentDate";
+        topicContent = @"topicContent";
+        
+        myReplyObject = [[NSMutableArray alloc] init];
+        NSString *repID = [self.contentAssets objectForKeyedSubscript:@"URLID"];
+        NSString *jsonURL = [NSString stringWithFormat:@"https://www.v2ex.com/api/topics/show.json?id=%@", repID];
+        
+        NSData *jsonSource = [NSData dataWithContentsOfURL:[NSURL URLWithString:jsonURL]];
+            
+            
+        id jsonObjects = [NSJSONSerialization JSONObjectWithData:jsonSource
+                                                                 options:NSJSONReadingMutableContainers
+                                                                   error:nil];
+        
+        for (NSDictionary *dataDick in jsonObjects) {
+            
+            // Get the replies content item.
+            NSMutableString *textRepContent;
+            textRepContent= [NSMutableString stringWithFormat:@"%@", [dataDick objectForKey:@"content_rendered"]];
+            NSString *attrContent_data = [NSString stringWithFormat:@"%@", textRepContent];
+            
+            // Get the rely date
+            NSString *contDate = [dataDick objectForKey:@"created"];
+            double timestampcvt2 = [contDate doubleValue];
+            NSTimeInterval timestamp2 = (NSTimeInterval)timestampcvt2;
+            NSDate *updateTimestamp2 = [NSDate dateWithTimeIntervalSince1970:timestamp2];
+            
+            NSDate *now2 = [NSDate date];
+            NSTimeInterval sinceNow2 = [now2 timeIntervalSinceDate:updateTimestamp2];
+                    
+            int intervalTime2;
+            NSString *contDate_data;
+            if (sinceNow2 < 3600) {
+                intervalTime2 = sinceNow2 / 60;
+                contDate_data = [NSString stringWithFormat:@"%i 分钟前", intervalTime2];
+            }
+            else if (sinceNow2 > 3600 && sinceNow2 < 86400) {
+                intervalTime2 = sinceNow2 / 3600;
+                contDate_data = [NSString stringWithFormat:@"%i 小时前", intervalTime2];
+            }
+            else if (sinceNow2 >= 86400) {
+                intervalTime2 = sinceNow2 / 86400;
+                contDate_data = [NSString stringWithFormat:@"%i 天前", intervalTime2];
+            }
+                    
+            contDictionary = [NSDictionary dictionaryWithObjectsAndKeys:contDate_data, contentDate,
+                                                                        attrContent_data, topicContent, nil];
+        }
+        if (contDictionary) {
+            self.myContentObject = [NSDictionary new];
+            self.myContentObject = contDictionary;
+        }
+        
+        // Get and convert the last modified timestamp to NSDate
+        NSString* contentTime = [self.myContentObject objectForKey:contentDate];
+                
+        // Get the topic content item.
+        NSString *htmlStringContent;
+        htmlStringContent= [self.myContentObject objectForKey:topicContent];
+                
+        dispatch_async(dispatch_get_main_queue(), ^{
+                    
+            Reachability *networkReachability = [Reachability reachabilityForInternetConnection];
+            NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
+                    
+            if (networkStatus == NotReachable) {
+                [self showConnectionAlertView];
+                        
+                [self.refreshControl endRefreshing];
+            } else if (!jsonSource) {
+                [self showConnectionAlertView];
+                        
+                [self.refreshControl endRefreshing];
+            } else {
+                
+                // Get the replies content item.
+                NSString *styledHTML = [self styledHTMLwithHTML:htmlStringContent];
+                NSMutableAttributedString *attrContent_data = [self replyAttributedStringWithHTML:styledHTML];
+                
+                headerView.timeLabel.text = contentTime;
+                
+                // UITextView Settings
+                headerView.contentTextView.delegate = self;
+                headerView.contentTextView.attributedText = attrContent_data;
+                NSLog(@"ATTRSTR: %@", attrContent_data);
+                headerView.contentTextView.backgroundColor = [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1];
+                // UITextView without margin/padding
+                headerView.contentTextView.textContainerInset = UIEdgeInsetsMake(0, -5, -0, -5);
+                [headerView.contentTextView setTranslatesAutoresizingMaskIntoConstraints:NO];
+                headerView.contentSepView.backgroundColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1];
+                
+                NSString *content_data = [NSString stringWithFormat:@"%@", attrContent_data];
+                if ([content_data isEqualToString:@""]) {
+                    [headerView.contentSepView removeFromSuperview];
+                    [headerView.contentTextView removeFromSuperview];
+                    [indicator2 stopAnimating];
+                }
+                
+                CGRect headerFrame = self.tableView.tableHeaderView.frame;
+                CGFloat contentTextViewHeight = [self textViewHeightForAttributedText:attrContent_data andWidth:headerView.contentTextView.frame.size.width];
+                
+                headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 25;
+                NSLog(@"TITLELABELHEIGHT: %f", contentTextViewHeight);
+                headerView.frame = headerFrame;
+                self.tableView.tableHeaderView = headerView;
+                [indicator2 stopAnimating];
+                [headerView sizeToFit];
+            
+                if (attrContent_data) {
+                    indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+                    indicator.frame = CGRectMake(0, headerFrame.size.height, self.tableView.frame.size.width, 21);
+                    [self.tableView addSubview:indicator];
+                    [indicator startAnimating];
+                }
+                
+                if (contentTime) {
+                    [self getTheReplies];
+                }
+            }
+                
+        });
+    });
+}
 
 - (void)getContentTextView
 {
@@ -245,7 +492,7 @@
             } else {
                 date_data = [dateDataString stringByReplacingOccurrencesOfString:@" · (.*?)$" withString:@""];
             }
-        
+            
             NSArray *dateStringArray = [date_data componentsSeparatedByString:@" "];
             if (dateStringArray.count > 1) {
                 NSString *unitString;
@@ -259,7 +506,7 @@
                 if ([subString containsString:@"天"]) {
                     unitString = @" 天前";
                 }
-            
+                    
                 
                 readableDate = [NSString stringWithFormat:@"%@%@", dateStringArray[0], unitString];
             }
@@ -270,7 +517,7 @@
         NSString *contentXPathQueryString = @"//div[@class='topic_content'][1]";
         NSArray *contentNodes = [contentsParser searchWithXPathQuery:contentXPathQueryString];
         NSString *contentText;
-
+            
         for (TFHppleElement *element2 in contentNodes) {
             contentText = [element2 raw];
             break;
@@ -279,8 +526,10 @@
         if (contentText == nil) {
             contentText = @"";
         }
+        
     
-        /* NSString *htmlString = [NSString stringWithFormat:@"<html><body>%@</body></html>", contentText];
+        /*
+         NSString *htmlString = [NSString stringWithFormat:@"<html><body>%@</body></html>", contentText];
          NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, } documentAttributes:nil error:nil];
          NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init]; // adjust the line spacing
          [paragraphStyle setLineSpacing:3];
@@ -293,10 +542,10 @@
         /*
          NSTimeInterval timestamp = (NSTimeInterval)timestampcvt;
          NSDate *updateTimestamp = [NSDate dateWithTimeIntervalSince1970:timestamp];
-    
+             
          NSDate *now = [NSDate date];
          NSTimeInterval sinceNow = [now timeIntervalSinceDate:updateTimestamp];
-    
+             
          int intervalTime;
          NSString *readableTime;
          if (sinceNow < 3600) {
@@ -305,7 +554,7 @@
          }
          else if (sinceNow > 3600 && sinceNow < 86400) {
             intervalTime = sinceNow / 3600;
-         readableTime = [NSString stringWithFormat:@"%ih", intervalTime];
+            readableTime = [NSString stringWithFormat:@"%ih", intervalTime];
          }
          else if (sinceNow >= 86400) {
             intervalTime = sinceNow / 86400;
@@ -314,46 +563,68 @@
          */
     
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSMutableString *textTitle;
-            textTitle = [self.contentAssets objectForKeyedSubscript:self.item];
-            
-            headerView.timeLabel.text = readableDate;
-            
-            // Get the topic content item.
-            NSMutableString *textContent;
-            textContent= [NSMutableString stringWithFormat:@"%@", contentText];
-            NSString *styledHTML = [self styledHTMLwithHTML:textContent];
-            NSMutableAttributedString *attrStrContent = [self attributedStringWithHTML:styledHTML];
-            NSLog(@"ATTRSTR: %@", attrStrContent);
-    
-            // UITextView Settings
-            headerView.contentTextView.attributedText = attrStrContent;
-            headerView.contentTextView.textColor = [UIColor colorWithRed:(82/255.f) green:(82/255.f) blue:(82/255.f) alpha:1.0f];
-            // UITextView without margin/padding
-            headerView.contentTextView.textContainerInset = UIEdgeInsetsMake(0, -5, -0, -5);
-            [headerView.contentTextView setTranslatesAutoresizingMaskIntoConstraints:NO];
-            headerView.contentSepView.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
-            
-            if ([contentText isEqualToString:@""]) {
-                [headerView.contentSepView removeFromSuperview];
-                [headerView.contentTextView removeFromSuperview];
+            [indicator stopAnimating];
+            Reachability *networkReachability = [Reachability reachabilityForInternetConnection];
+            NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
+                
+            if (networkStatus == NotReachable) {
+                [self showConnectionAlertView];
+                    
+                [self.refreshControl endRefreshing];
             }
+            else if (!contentsHTMLData) {
+                [self showConnectionAlertView];
+                
+                [self.refreshControl endRefreshing];
+            }
+            else {
+                
+                // Get the topic content item.
+                NSMutableString *textContent;
+                textContent= [NSMutableString stringWithFormat:@"%@", contentText];
+                NSString *styledHTML = [self styledHTMLwithHTML:textContent];
+                NSMutableAttributedString *attrStrContent = [self attributedStringWithHTML:styledHTML];
+                NSLog(@"ATTRSTR: %@", attrStrContent);
+        
+                NSMutableString *textTitle;
+                textTitle = [self.contentAssets objectForKeyedSubscript:self.item];
+        
+                headerView.timeLabel.text = readableDate;
+                // UITextView Settings
+                headerView.contentTextView.delegate = self;
+                headerView.contentTextView.attributedText = attrStrContent;
+                headerView.contentTextView.backgroundColor = [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1];
+                // UITextView without margin/padding
+                headerView.contentTextView.textContainerInset = UIEdgeInsetsMake(0, -5, -0, -5);
+                [headerView.contentTextView setTranslatesAutoresizingMaskIntoConstraints:NO];
+                headerView.contentSepView.backgroundColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1];
             
-            CGRect headerFrame = self.tableView.tableHeaderView.frame;
-            CGFloat contentTextViewHeight = [self textViewHeightForAttributedText:attrStrContent andWidth:headerView.contentTextView.frame.size.width];
+                if ([contentText isEqualToString:@""]) {
+                    [headerView.contentSepView removeFromSuperview];
+                    [headerView.contentTextView removeFromSuperview];
+                    [indicator2 stopAnimating];
+                }
             
-            headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 20;
-            NSLog(@"TITLELABELHEIGHT: %f", contentTextViewHeight);
-            headerView.frame = headerFrame;
-            self.tableView.tableHeaderView = headerView;
-            [headerView sizeToFit];
+                CGRect headerFrame = self.tableView.tableHeaderView.frame;
+                CGFloat contentTextViewHeight = [self textViewHeightForAttributedText:attrStrContent andWidth:headerView.contentTextView.frame.size.width];
+                    
+                headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 20;
+                NSLog(@"TITLELABELHEIGHT: %f", contentTextViewHeight);
+                headerView.frame = headerFrame;
+                self.tableView.tableHeaderView = headerView;
+                [indicator2 stopAnimating];
+                [headerView sizeToFit];
             
-            if (textTitle) {
-                indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-                indicator.frame = CGRectMake(0, headerFrame.size.height, self.tableView.frame.size.width, 21);
-                [self.tableView addSubview:indicator];
-                [indicator startAnimating];
-                [self performSelector:@selector(getTheReplies) withObject:nil afterDelay:2.0];
+                if (contentText) {
+                    indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+                    indicator.frame = CGRectMake(0, headerFrame.size.height, self.tableView.frame.size.width, 21);
+                    [self.tableView addSubview:indicator];
+                    [indicator startAnimating];
+                }
+            
+                if (readableDate) {
+                    [self getTheReplies];
+                }
             }
         });
     });
@@ -361,7 +632,7 @@
 
 - (NSString *)styledHTMLwithHTML:(NSString *)HTML
 {
-    NSString *style = @"<meta charset=\"Unicode\"><style> body { font-family: 'HelveticaNeue'; line-height: 22px; font-size: 15px; } b {font-family: 'MarkerFelt-Wide'; }</style>";
+    NSString *style = @"<meta charset=\"Unicode\"><style> body { font-family: 'HelveticaNeue'; line-height: 22px; font-size: 15px; color: #4d4d4d; } b {font-family: 'MarkerFelt-Wide'; }</style>";
     
     return [NSString stringWithFormat:@"%@%@", style, HTML];
 }
@@ -407,6 +678,19 @@
                                       [attributedString addAttribute:NSAttachmentAttributeName value:attachment range:range];
                                   }
                               }];
+    
+    // Remove the underline of linkiiwj
+    [attributedString beginEditing];
+    [attributedString enumerateAttribute:NSUnderlineStyleAttributeName
+                                 inRange:NSMakeRange(0, attributedString.length)
+                                 options:0
+                              usingBlock:^(id value, NSRange range, BOOL *stop) {
+                                  if (value) {
+                                      [attributedString addAttribute:NSUnderlineStyleAttributeName value:@(NSUnderlineStyleNone) range:range];
+                                  }
+                              }];
+    [attributedString endEditing];
+    
     return attributedString;
 }
 
@@ -441,85 +725,185 @@
 }
 */
 
+
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange
+{
+    // Check for long press event
+    BOOL isLongPress = NO;
+    
+    for (UIGestureRecognizer *recognizer in textView.gestureRecognizers) {
+        if ([recognizer isKindOfClass:[UILongPressGestureRecognizer class]]) {
+            if (recognizer.state == UIGestureRecognizerStateBegan) {
+                isLongPress = YES;
+            }
+        }
+    }
+    
+    if (isLongPress == YES) {
+      
+        // User long pressed a link, do something
+        
+        return YES;
+        
+    } else {
+    
+        // User tapped on a link, do something
+    
+        NSString *atID = [NSString stringWithFormat:@"%@", URL];
+        if ([atID containsString:@"."]) {
+        
+            if ([atID containsString:@"@"]) {
+                return YES;
+            } else {
+        
+                NSLog(@"URL IS: %@", URL);
+        
+                // Open the website here
+                SVWebViewController *webViewController = [[SVWebViewController alloc] initWithURL:URL];
+                [self.navigationController pushViewController:webViewController animated:YES];
+                
+                return NO;
+            }
+        }
+    }
+    
+    return NO;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    repliesTableViewCell *cell2 = [tableView dequeueReusableCellWithIdentifier:@"repliesTableViewCell" forIndexPath:indexPath];
+    static NSString *ID = @"repliesTableViewCell";
     
-    if (cell2 == nil) {
-        cell2 = [[repliesTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"repliesTableViewCell"];
+    repliesTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    
+    if (cell == nil) {
+        cell = [[repliesTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
     }
     
-    // The second UITableViewCell, cell2.
-    NSDictionary *tmpDict = [self.myObject objectAtIndex:indexPath.row];
+    // The second UITableViewCell, cell2
+    NSDictionary *tmpDict = [self.myObject2 objectAtIndex:indexPath.row];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Get Avatar URL
+        NSURL *url2 = [NSURL URLWithString:[tmpDict objectForKey:repAvatar]];
     
-    // Get the replyer ID item.
-    NSMutableString *textRepID;
-    textRepID = [tmpDict objectForKey:replyID];
+        
+        // Get and convert the last modified timestamp to NSDate
+        NSString* readableTime = [tmpDict objectForKey:replyDate];
     
-    // Get the replies content item.
-    NSMutableString *textRepContent;
-    textRepContent= [NSMutableString stringWithFormat:@"%@", [tmpDict objectForKey:replyContent]];
-    NSString *htmlStringContent = [NSString stringWithFormat:@"%@", textRepContent];
-    NSString *styledHTML = [self styledHTMLwithHTML:htmlStringContent];
-    NSMutableAttributedString *attrStrContent = [self replyAttributedStringWithHTML:styledHTML];
+                
+        // Get the replyer ID item.
+        NSMutableString *textRepID;
+        textRepID = [tmpDict objectForKey:replyID];
+                
+        // Get the replies content item.
+        NSMutableAttributedString *textRepContent;
+        textRepContent= [tmpDict objectForKey:replyContent];
     
-    // Asynchronously Settings of the IDImageView
-    NSURL *url2 = [NSURL URLWithString:[tmpDict objectForKey:repAvatar]];
-    [cell2.repliesImageView setImageWithURL:url2];
-    cell2.repliesImageView.layer.cornerRadius = 5.0;
-    cell2.repliesImageView.layer.masksToBounds = YES;
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Asynchronously Settings of the IDImageView
+            [cell.repliesImageView setImageWithURL:url2 placeholderImage:[UIImage imageNamed:@"avatarPlaceholder"]];
     
-    // Get and convert the last modified timestamp to NSDate
-    double timestampcvt2 = [[tmpDict objectForKey:replyDate] doubleValue];
-    NSTimeInterval timestamp2 = (NSTimeInterval)timestampcvt2;
-    NSDate *updateTimestamp2 = [NSDate dateWithTimeIntervalSince1970:timestamp2];
+            // Settings of labels.
+            cell.repliesID.text = textRepID;
     
-    NSDate *now2 = [NSDate date];
-    NSTimeInterval sinceNow2 = [now2 timeIntervalSinceDate:updateTimestamp2];
+            // UITextView Settings
+            cell.repliesTextView.delegate = self;
+            cell.repliesTextView.attributedText = textRepContent;
     
-    int intervalTime2;
-    NSString *readableTime2;
-    if (sinceNow2 < 3600) {
-        intervalTime2 = sinceNow2 / 60;
-        readableTime2 = [NSString stringWithFormat:@"%i 分钟前", intervalTime2];
-    }
-    else if (sinceNow2 > 3600 && sinceNow2 < 86400) {
-        intervalTime2 = sinceNow2 / 3600;
-        readableTime2 = [NSString stringWithFormat:@"%i 小时前", intervalTime2];
-    }
-    else if (sinceNow2 >= 86400) {
-        intervalTime2 = sinceNow2 / 86400;
-        readableTime2 = [NSString stringWithFormat:@"%i 天前", intervalTime2];
-    }
-    
-    // Settings of labels.
-    cell2.repliesID.text = textRepID;
-    
-    // UITextView Settings
-    cell2.repliesTextView.attributedText = attrStrContent;
-    cell2.repliesTextView.font = [UIFont systemFontOfSize:15.0f];
-    cell2.repliesTextView.textColor = [UIColor darkGrayColor];
-    // UITextView lose margin/padding
-    cell2.repliesTextView.textContainerInset = UIEdgeInsetsMake(0, -5, -0, -5);
-    [cell2.repliesTextView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    
-    cell2.repliesTime.text = readableTime2;
+            cell.repliesTime.text = readableTime;
+        });
+    });
     
     // Setup the cell separator line margins
     // cell2.preservesSuperviewLayoutMargins = NO;
     
     UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 1)];
-    separatorView.backgroundColor = [UIColor colorWithRed:(230/255.f) green:(230/255.f) blue:(230/255.f) alpha:1.0f];
-    [cell2.contentView addSubview:separatorView];
-    
-    cell2.layer.shouldRasterize = YES;
-    cell2.layer.rasterizationScale = [UIScreen mainScreen].scale;
+    separatorView.backgroundColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1];
+    [cell.contentView addSubview:separatorView];
     
     [indicator stopAnimating];
     
-    return cell2;
+    // Make cell.contentView interactive
+    cell.contentView.userInteractionEnabled = YES;
+    
+    return cell;
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return [tableView fd_heightForCellWithIdentifier:@"repliesTableViewCell" cacheByIndexPath:indexPath configuration:^(repliesTableViewCell *cell) {
+        if (cell == nil) {
+            cell = [[repliesTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"repliesTableViewCell"];
+        }
+        
+        // The second UITableViewCell, cell2
+        NSDictionary *tmpDict = [self.myObject2 objectAtIndex:indexPath.row];
+        
+        // Get Avatar URL
+        NSURL *url2 = [NSURL URLWithString:[tmpDict objectForKey:repAvatar]];
+        
+        // Get and convert the last modified timestamp to NSDate
+        NSString* readableTime = [tmpDict objectForKey:replyDate];
+        
+        // Get the replyer ID item.
+        NSMutableString *textRepID;
+        textRepID = [tmpDict objectForKey:replyID];
+        
+        // Get the replies content item.
+        NSMutableAttributedString *textRepContent;
+        textRepContent= [tmpDict objectForKey:replyContent];
+        
+        
+        
+        // Asynchronously Settings of the IDImageView
+        [cell.repliesImageView setImageWithURL:url2];
+        
+        // Settings of labels.
+        cell.repliesID.text = textRepID;
+        
+        // UITextView Settings
+        cell.repliesTextView.attributedText = textRepContent;
+        
+        cell.repliesTime.text = readableTime;
+    }];
+}
+
+- (IBAction)shareButton:(id)sender
+{
+    NSMutableString *textTitle;
+    textTitle = [self.contentAssets objectForKeyedSubscript:@"title"];
+    NSString *textToShare = textTitle;
+    
+    NSString *repID = [self.contentAssets objectForKeyedSubscript:@"URLID"];
+    NSString *websiteString = [NSString stringWithFormat:@"https://www.v2ex.com/t/%@", repID];
+    NSURL *websiteToShare = [NSURL URLWithString:websiteString];
+    
+    if (websiteToShare != nil) {
+        NSArray *activities = @[[SVWebViewControllerActivityCopyLink new], [SVWebViewControllerActivitySafari new], [SVWebViewControllerActivityChrome new]];
+        
+        if ([[websiteToShare absoluteString] hasPrefix:@"file:///"]) {
+            UIDocumentInteractionController *dc = [UIDocumentInteractionController interactionControllerWithURL:websiteToShare];
+            [dc presentOptionsMenuFromRect:self.view.bounds inView:self.view animated:YES];
+        } else {
+            NSArray *objectsToShare = @[textToShare, websiteToShare];
+            
+            UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:objectsToShare applicationActivities:activities];
+            
+#ifdef __IPHONE_8_0
+            if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1 &&
+                UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+            {
+                UIPopoverPresentationController *ctrl = activityController.popoverPresentationController;
+                ctrl.sourceView = self.view;
+                ctrl.barButtonItem = sender;
+            }
+#endif
+            
+            [self presentViewController:activityController animated:YES completion:nil];
+        }
+    }
+}
 
 /*
 // Override to support conditional editing of the table view.

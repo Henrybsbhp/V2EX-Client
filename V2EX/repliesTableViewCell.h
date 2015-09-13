@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface repliesTableViewCell : UITableViewCell
+@interface repliesTableViewCell : UITableViewCell <UITextViewDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *repliesImageView;
 @property (weak, nonatomic) IBOutlet UILabel *repliesID;
 @property (weak, nonatomic) IBOutlet UITextView *repliesTextView;

@@ -8,11 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import "ViewController.h"
+#import "SVWebViewController.h"
 
-@interface contentTableViewController : ViewController <UITableViewDelegate, UITableViewDataSource, UITextViewDelegate>
+@interface contentTableViewController : ViewController <UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UIWebViewDelegate>
 
 @property (nonatomic, strong) NSDictionary *contentAssets;
 @property (nonatomic) CGFloat contentViewHeight;
 @property NSMutableDictionary *estimatedRowHeightCache;
+
+@property (nonatomic, strong) NSString *exchangeID;
 
 @end

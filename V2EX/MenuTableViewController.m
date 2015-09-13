@@ -27,6 +27,22 @@
     menuItems = @[@"title", @"tech", @"creative", @"play", @"apple", @"jobs", @"deals", @"city", @"qna", @"hot", @"all", @"r2"];
     
     titleNames = @[@"分类", @"技术", @"创意", @"好玩", @"Apple", @"酷工作", @"交易", @"城市", @"问与答", @"最热", @"全部", @" R2"];
+    
+    self.tableView.backgroundColor = [UIColor colorWithRed:0.82 green:0.82 blue:0.81 alpha:1];
+}
+
+-(void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.revealViewController.frontViewController.view setUserInteractionEnabled:NO];
+    [self.revealViewController.view addGestureRecognizer:self.revealViewController.panGestureRecognizer];
+    [self.revealViewController.navigationController.view addGestureRecognizer:self.revealViewController.tapGestureRecognizer];
+}
+
+-(void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    [self.revealViewController.frontViewController.view setUserInteractionEnabled:YES];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -51,6 +67,8 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSString *CellIdentifier = [menuItems objectAtIndex:indexPath.row];
     UITableView *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    
+    cell.backgroundColor = [UIColor colorWithRed:0.82 green:0.82 blue:0.81 alpha:1];
     
     return cell;
 }

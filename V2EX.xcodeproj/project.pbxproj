@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9E60E2836E6E911ED9C32E35 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B6E7649DC6887F1D8EDF0B88 /* libPods.a */; };
+		FA0DE13E1BA1BEBB009ECA35 /* SVWebViewControllerActivityCopyLink.m in Sources */ = {isa = PBXBuildFile; fileRef = FA0DE13D1BA1BEBB009ECA35 /* SVWebViewControllerActivityCopyLink.m */; settings = {ASSET_TAGS = (); }; };
 		FA785FA01B0CD76B00F30493 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA785F9F1B0CD76B00F30493 /* ImageIO.framework */; };
 		FA79DEEE1B402E2800AA13A6 /* contenHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = FA79DEED1B402E2800AA13A6 /* contenHeaderView.m */; };
 		FA821C481B03473D00B53533 /* NavigationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FA821C471B03473D00B53533 /* NavigationViewController.m */; };
@@ -15,7 +16,13 @@
 		FA821C571B04944400B53533 /* AllTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FA821C561B04944400B53533 /* AllTableViewCell.m */; };
 		FA859C941B78FABB00941EC0 /* MyContentImageAttachment.m in Sources */ = {isa = PBXBuildFile; fileRef = FA859C931B78FABB00941EC0 /* MyContentImageAttachment.m */; };
 		FA859C971B790ABF00941EC0 /* MyReplyImageAttachment.m in Sources */ = {isa = PBXBuildFile; fileRef = FA859C961B790ABF00941EC0 /* MyReplyImageAttachment.m */; };
+		FA93A3E11B97788B00198D2A /* UITableView+FDTemplateLayoutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FA93A3E01B97788B00198D2A /* UITableView+FDTemplateLayoutCell.m */; };
 		FAA2A8C51B13023D001B906F /* repliesTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FAA2A8C41B13023D001B906F /* repliesTableViewCell.m */; };
+		FAAFB2811B9EE0A500CA7144 /* SVWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FAAFB2801B9EE0A500CA7144 /* SVWebViewController.m */; settings = {ASSET_TAGS = (); }; };
+		FAAFB2841B9EE2B200CA7144 /* SVWebViewControllerActivitySafari.m in Sources */ = {isa = PBXBuildFile; fileRef = FAAFB2831B9EE2B200CA7144 /* SVWebViewControllerActivitySafari.m */; settings = {ASSET_TAGS = (); }; };
+		FAAFB2871B9EE2FB00CA7144 /* SVWebViewControllerActivityChrome.m in Sources */ = {isa = PBXBuildFile; fileRef = FAAFB2861B9EE2FB00CA7144 /* SVWebViewControllerActivityChrome.m */; settings = {ASSET_TAGS = (); }; };
+		FAAFB28A1B9EE32400CA7144 /* SVWebViewControllerActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = FAAFB2891B9EE32400CA7144 /* SVWebViewControllerActivity.m */; settings = {ASSET_TAGS = (); }; };
+		FAAFB28C1B9EE3D600CA7144 /* SVWebViewController.bundle in Resources */ = {isa = PBXBuildFile; fileRef = FAAFB28B1B9EE3D600CA7144 /* SVWebViewController.bundle */; settings = {ASSET_TAGS = (); }; };
 		FAC086121B10C88B007ED446 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC086111B10C88B007ED446 /* Reachability.m */; };
 		FAC086151B11E7E0007ED446 /* contentTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC086141B11E7E0007ED446 /* contentTableViewController.m */; };
 		FAC155421B80A11200762A95 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAC155411B80A11200762A95 /* Images.xcassets */; };
@@ -41,6 +48,7 @@
 		FAEEB9871B1071B600D4B039 /* UIImageView+HighlightedWebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = FAEEB9751B1071B600D4B039 /* UIImageView+HighlightedWebCache.m */; };
 		FAEEB9881B1071B600D4B039 /* UIImageView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = FAEEB9771B1071B600D4B039 /* UIImageView+WebCache.m */; };
 		FAEEB9891B1071B600D4B039 /* UIView+WebCacheOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = FAEEB9791B1071B600D4B039 /* UIView+WebCacheOperation.m */; };
+		FAF21D9A1BA56FE200D613AA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAC155411B80A11200762A95 /* Images.xcassets */; settings = {ASSET_TAGS = (); }; };
 		FAFC782F1B01F76700A34D58 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FAFC782E1B01F76700A34D58 /* main.m */; };
 		FAFC78321B01F76700A34D58 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FAFC78311B01F76700A34D58 /* AppDelegate.m */; };
 		FAFC78381B01F76700A34D58 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FAFC78361B01F76700A34D58 /* Main.storyboard */; };
@@ -62,6 +70,8 @@
 		0870241BB8541BDFEBC71194 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		88D504FC923B70D86D30456F /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		B6E7649DC6887F1D8EDF0B88 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA0DE13C1BA1BEBB009ECA35 /* SVWebViewControllerActivityCopyLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVWebViewControllerActivityCopyLink.h; sourceTree = "<group>"; };
+		FA0DE13D1BA1BEBB009ECA35 /* SVWebViewControllerActivityCopyLink.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVWebViewControllerActivityCopyLink.m; sourceTree = "<group>"; };
 		FA785F9F1B0CD76B00F30493 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		FA79DEEC1B402E2800AA13A6 /* contenHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contenHeaderView.h; sourceTree = "<group>"; };
 		FA79DEED1B402E2800AA13A6 /* contenHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = contenHeaderView.m; sourceTree = "<group>"; };
@@ -75,8 +85,19 @@
 		FA859C931B78FABB00941EC0 /* MyContentImageAttachment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyContentImageAttachment.m; sourceTree = "<group>"; };
 		FA859C951B790ABF00941EC0 /* MyReplyImageAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyReplyImageAttachment.h; sourceTree = "<group>"; };
 		FA859C961B790ABF00941EC0 /* MyReplyImageAttachment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyReplyImageAttachment.m; sourceTree = "<group>"; };
+		FA93A3DF1B97788B00198D2A /* UITableView+FDTemplateLayoutCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITableView+FDTemplateLayoutCell.h"; sourceTree = "<group>"; };
+		FA93A3E01B97788B00198D2A /* UITableView+FDTemplateLayoutCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITableView+FDTemplateLayoutCell.m"; sourceTree = "<group>"; };
 		FAA2A8C31B13023D001B906F /* repliesTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = repliesTableViewCell.h; sourceTree = "<group>"; };
 		FAA2A8C41B13023D001B906F /* repliesTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = repliesTableViewCell.m; sourceTree = "<group>"; };
+		FAAFB27F1B9EE0A500CA7144 /* SVWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVWebViewController.h; sourceTree = "<group>"; };
+		FAAFB2801B9EE0A500CA7144 /* SVWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVWebViewController.m; sourceTree = "<group>"; };
+		FAAFB2821B9EE2B200CA7144 /* SVWebViewControllerActivitySafari.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVWebViewControllerActivitySafari.h; sourceTree = "<group>"; };
+		FAAFB2831B9EE2B200CA7144 /* SVWebViewControllerActivitySafari.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVWebViewControllerActivitySafari.m; sourceTree = "<group>"; };
+		FAAFB2851B9EE2FB00CA7144 /* SVWebViewControllerActivityChrome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVWebViewControllerActivityChrome.h; sourceTree = "<group>"; };
+		FAAFB2861B9EE2FB00CA7144 /* SVWebViewControllerActivityChrome.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVWebViewControllerActivityChrome.m; sourceTree = "<group>"; };
+		FAAFB2881B9EE32400CA7144 /* SVWebViewControllerActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVWebViewControllerActivity.h; sourceTree = "<group>"; };
+		FAAFB2891B9EE32400CA7144 /* SVWebViewControllerActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVWebViewControllerActivity.m; sourceTree = "<group>"; };
+		FAAFB28B1B9EE3D600CA7144 /* SVWebViewController.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SVWebViewController.bundle; sourceTree = "<group>"; };
 		FAC086101B10C88B007ED446 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		FAC086111B10C88B007ED446 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		FAC086131B11E7E0007ED446 /* contentTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contentTableViewController.h; sourceTree = "<group>"; };
@@ -177,6 +198,135 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		FA00CD231B9DCFDE00E4781F /* TopicListViewController */ = {
+			isa = PBXGroup;
+			children = (
+				FA821C4C1B03A74A00B53533 /* ViewController.h */,
+				FA821C4D1B03A74A00B53533 /* ViewController.m */,
+			);
+			name = TopicListViewController;
+			sourceTree = "<group>";
+		};
+		FA00CD241B9DD00A00E4781F /* ContentViewController */ = {
+			isa = PBXGroup;
+			children = (
+				FAC086131B11E7E0007ED446 /* contentTableViewController.h */,
+				FAC086141B11E7E0007ED446 /* contentTableViewController.m */,
+			);
+			name = ContentViewController;
+			sourceTree = "<group>";
+		};
+		FA00CD251B9DD02100E4781F /* V2EXViewController */ = {
+			isa = PBXGroup;
+			children = (
+				FA821C461B03473D00B53533 /* NavigationViewController.h */,
+				FA821C471B03473D00B53533 /* NavigationViewController.m */,
+				FA00CD231B9DCFDE00E4781F /* TopicListViewController */,
+				FA00CD241B9DD00A00E4781F /* ContentViewController */,
+			);
+			name = V2EXViewController;
+			sourceTree = "<group>";
+		};
+		FA00CD261B9DD04700E4781F /* TopicListCell */ = {
+			isa = PBXGroup;
+			children = (
+				FA821C551B04944400B53533 /* AllTableViewCell.h */,
+				FA821C561B04944400B53533 /* AllTableViewCell.m */,
+			);
+			name = TopicListCell;
+			sourceTree = "<group>";
+		};
+		FA00CD271B9DD06300E4781F /* ContentViewCell+Header */ = {
+			isa = PBXGroup;
+			children = (
+				FAA2A8C31B13023D001B906F /* repliesTableViewCell.h */,
+				FAA2A8C41B13023D001B906F /* repliesTableViewCell.m */,
+				FA79DEEC1B402E2800AA13A6 /* contenHeaderView.h */,
+				FA79DEED1B402E2800AA13A6 /* contenHeaderView.m */,
+			);
+			name = "ContentViewCell+Header";
+			sourceTree = "<group>";
+		};
+		FA00CD281B9DD09800E4781F /* V2EXTableViewCell */ = {
+			isa = PBXGroup;
+			children = (
+				FA00CD261B9DD04700E4781F /* TopicListCell */,
+				FA00CD271B9DD06300E4781F /* ContentViewCell+Header */,
+			);
+			name = V2EXTableViewCell;
+			sourceTree = "<group>";
+		};
+		FA00CD291B9DD0DD00E4781F /* Attachments */ = {
+			isa = PBXGroup;
+			children = (
+				FA859C921B78FABB00941EC0 /* MyContentImageAttachment.h */,
+				FA859C931B78FABB00941EC0 /* MyContentImageAttachment.m */,
+				FA859C951B790ABF00941EC0 /* MyReplyImageAttachment.h */,
+				FA859C961B790ABF00941EC0 /* MyReplyImageAttachment.m */,
+			);
+			name = Attachments;
+			sourceTree = "<group>";
+		};
+		FA0DE13B1BA1BE4F009ECA35 /* Copy Link */ = {
+			isa = PBXGroup;
+			children = (
+				FA0DE13C1BA1BEBB009ECA35 /* SVWebViewControllerActivityCopyLink.h */,
+				FA0DE13D1BA1BEBB009ECA35 /* SVWebViewControllerActivityCopyLink.m */,
+			);
+			name = "Copy Link";
+			sourceTree = "<group>";
+		};
+		FA93A3DE1B97788B00198D2A /* UITableView+FDTemplateLayoutCell */ = {
+			isa = PBXGroup;
+			children = (
+				FA93A3DF1B97788B00198D2A /* UITableView+FDTemplateLayoutCell.h */,
+				FA93A3E01B97788B00198D2A /* UITableView+FDTemplateLayoutCell.m */,
+			);
+			path = "UITableView+FDTemplateLayoutCell";
+			sourceTree = "<group>";
+		};
+		FAAFB27E1B9EE06200CA7144 /* SVWebViewController */ = {
+			isa = PBXGroup;
+			children = (
+				FAAFB27F1B9EE0A500CA7144 /* SVWebViewController.h */,
+				FAAFB2801B9EE0A500CA7144 /* SVWebViewController.m */,
+				FAAFB28B1B9EE3D600CA7144 /* SVWebViewController.bundle */,
+				FAAFB28D1B9EE7F900CA7144 /* UIActivities */,
+			);
+			name = SVWebViewController;
+			path = SDWebImage;
+			sourceTree = "<group>";
+		};
+		FAAFB28D1B9EE7F900CA7144 /* UIActivities */ = {
+			isa = PBXGroup;
+			children = (
+				FAAFB2881B9EE32400CA7144 /* SVWebViewControllerActivity.h */,
+				FAAFB2891B9EE32400CA7144 /* SVWebViewControllerActivity.m */,
+				FAAFB28E1B9EE81400CA7144 /* Safari */,
+				FAAFB28F1B9EE82100CA7144 /* Chrome */,
+				FA0DE13B1BA1BE4F009ECA35 /* Copy Link */,
+			);
+			name = UIActivities;
+			sourceTree = "<group>";
+		};
+		FAAFB28E1B9EE81400CA7144 /* Safari */ = {
+			isa = PBXGroup;
+			children = (
+				FAAFB2821B9EE2B200CA7144 /* SVWebViewControllerActivitySafari.h */,
+				FAAFB2831B9EE2B200CA7144 /* SVWebViewControllerActivitySafari.m */,
+			);
+			name = Safari;
+			sourceTree = "<group>";
+		};
+		FAAFB28F1B9EE82100CA7144 /* Chrome */ = {
+			isa = PBXGroup;
+			children = (
+				FAAFB2851B9EE2FB00CA7144 /* SVWebViewControllerActivityChrome.h */,
+				FAAFB2861B9EE2FB00CA7144 /* SVWebViewControllerActivityChrome.m */,
+			);
+			name = Chrome;
+			sourceTree = "<group>";
+		};
 		FAE8E9401B4FD13F0021392F /* Slide-out Menu */ = {
 			isa = PBXGroup;
 			children = (
@@ -251,8 +401,10 @@
 		FAFC78201B01F76700A34D58 = {
 			isa = PBXGroup;
 			children = (
-				FAEEB9581B1071B600D4B039 /* SDWebImage */,
 				FA785F9F1B0CD76B00F30493 /* ImageIO.framework */,
+				FA93A3DE1B97788B00198D2A /* UITableView+FDTemplateLayoutCell */,
+				FAEEB9581B1071B600D4B039 /* SDWebImage */,
+				FAAFB27E1B9EE06200CA7144 /* SVWebViewController */,
 				FAFC782B1B01F76700A34D58 /* V2EX */,
 				FAFC78451B01F76700A34D58 /* V2EXTests */,
 				FAFC782A1B01F76700A34D58 /* Products */,
@@ -273,29 +425,16 @@
 		FAFC782B1B01F76700A34D58 /* V2EX */ = {
 			isa = PBXGroup;
 			children = (
-				FAE8E9431B513CB20021392F /* HTMLParsing */,
-				FAEAD4431B4E829200C9E3F9 /* SWRevealViewController */,
-				FAE8E9401B4FD13F0021392F /* Slide-out Menu */,
 				FAC086101B10C88B007ED446 /* Reachability.h */,
 				FAC086111B10C88B007ED446 /* Reachability.m */,
 				FAFC78301B01F76700A34D58 /* AppDelegate.h */,
 				FAFC78311B01F76700A34D58 /* AppDelegate.m */,
-				FA821C4C1B03A74A00B53533 /* ViewController.h */,
-				FA821C4D1B03A74A00B53533 /* ViewController.m */,
-				FA821C551B04944400B53533 /* AllTableViewCell.h */,
-				FA821C561B04944400B53533 /* AllTableViewCell.m */,
-				FA821C461B03473D00B53533 /* NavigationViewController.h */,
-				FA821C471B03473D00B53533 /* NavigationViewController.m */,
-				FAC086131B11E7E0007ED446 /* contentTableViewController.h */,
-				FAC086141B11E7E0007ED446 /* contentTableViewController.m */,
-				FA859C921B78FABB00941EC0 /* MyContentImageAttachment.h */,
-				FA859C931B78FABB00941EC0 /* MyContentImageAttachment.m */,
-				FA859C951B790ABF00941EC0 /* MyReplyImageAttachment.h */,
-				FA859C961B790ABF00941EC0 /* MyReplyImageAttachment.m */,
-				FA79DEEC1B402E2800AA13A6 /* contenHeaderView.h */,
-				FA79DEED1B402E2800AA13A6 /* contenHeaderView.m */,
-				FAA2A8C31B13023D001B906F /* repliesTableViewCell.h */,
-				FAA2A8C41B13023D001B906F /* repliesTableViewCell.m */,
+				FAE8E9431B513CB20021392F /* HTMLParsing */,
+				FAEAD4431B4E829200C9E3F9 /* SWRevealViewController */,
+				FAE8E9401B4FD13F0021392F /* Slide-out Menu */,
+				FA00CD251B9DD02100E4781F /* V2EXViewController */,
+				FA00CD281B9DD09800E4781F /* V2EXTableViewCell */,
+				FA00CD291B9DD0DD00E4781F /* Attachments */,
 				FAFC78361B01F76700A34D58 /* Main.storyboard */,
 				FAFC783B1B01F76700A34D58 /* LaunchScreen.xib */,
 				FAFC782C1B01F76700A34D58 /* Supporting Files */,
@@ -412,6 +551,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAAFB28C1B9EE3D600CA7144 /* SVWebViewController.bundle in Resources */,
 				FAC155421B80A11200762A95 /* Images.xcassets in Resources */,
 				FAFC78381B01F76700A34D58 /* Main.storyboard in Resources */,
 				FAFC783D1B01F76700A34D58 /* LaunchScreen.xib in Resources */,
@@ -422,6 +562,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAF21D9A1BA56FE200D613AA /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -471,6 +612,9 @@
 				FAEEB9881B1071B600D4B039 /* UIImageView+WebCache.m in Sources */,
 				FAEEB9861B1071B600D4B039 /* UIImage+WebP.m in Sources */,
 				FAC086151B11E7E0007ED446 /* contentTableViewController.m in Sources */,
+				FAAFB2811B9EE0A500CA7144 /* SVWebViewController.m in Sources */,
+				FAAFB28A1B9EE32400CA7144 /* SVWebViewControllerActivity.m in Sources */,
+				FA93A3E11B97788B00198D2A /* UITableView+FDTemplateLayoutCell.m in Sources */,
 				FAEAD4461B4E82B000C9E3F9 /* SWRevealViewController.m in Sources */,
 				FAEEB9821B1071B600D4B039 /* SDWebImagePrefetcher.m in Sources */,
 				FAFC78321B01F76700A34D58 /* AppDelegate.m in Sources */,
@@ -490,13 +634,16 @@
 				FAEEB9841B1071B600D4B039 /* UIImage+GIF.m in Sources */,
 				FAEEB97D1B1071B600D4B039 /* SDWebImageCompat.m in Sources */,
 				FAEEB97B1B1071B600D4B039 /* NSData+ImageContentType.m in Sources */,
+				FA0DE13E1BA1BEBB009ECA35 /* SVWebViewControllerActivityCopyLink.m in Sources */,
 				FAE8E94C1B513D0B0021392F /* XPathQuery.m in Sources */,
 				FAE8E94B1B513D0B0021392F /* TFHppleElement.m in Sources */,
 				FAE8E94A1B513D0B0021392F /* TFHpple.m in Sources */,
+				FAAFB2871B9EE2FB00CA7144 /* SVWebViewControllerActivityChrome.m in Sources */,
 				FA79DEEE1B402E2800AA13A6 /* contenHeaderView.m in Sources */,
 				FAFC782F1B01F76700A34D58 /* main.m in Sources */,
 				FAEEB97A1B1071B600D4B039 /* MKAnnotationView+WebCache.m in Sources */,
 				FAEEB97C1B1071B600D4B039 /* SDImageCache.m in Sources */,
+				FAAFB2841B9EE2B200CA7144 /* SVWebViewControllerActivitySafari.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -574,7 +721,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -611,7 +758,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -624,7 +771,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Wei Feng Hou (7M253B4AY4)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -632,7 +779,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				INFOPLIST_FILE = V2EX/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -650,7 +797,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Wei Feng Hou (7M253B4AY4)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -658,7 +805,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2";
 				INFOPLIST_FILE = V2EX/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (

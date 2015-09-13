@@ -22,6 +22,23 @@
 
 - (void)awakeFromNib {
     // Initialization code
+    
+    self.IDImageView.layer.cornerRadius = 5.0;
+    self.IDImageView.layer.masksToBounds = YES;
+    
+    // titleLabel settings
+    self.nodeLabel.layer.cornerRadius = 2.0;
+    self.nodeLabel.layer.masksToBounds = YES;
+    self.nodeLabel.backgroundColor = [UIColor colorWithRed:0.67 green:0.67 blue:0.65 alpha:1];
+    self.nodeLabel.textColor = [UIColor colorWithRed:0.94 green:0.93 blue:0.91 alpha:1];
+    self.borderView.layer.cornerRadius = 2.0;
+    self.borderView.layer.masksToBounds = YES;
+    self.borderView.backgroundColor = [UIColor colorWithRed:0.67 green:0.67 blue:0.65 alpha:1];
+    
+    self.layer.shouldRasterize = YES;
+    self.layer.rasterizationScale = [UIScreen mainScreen].scale;
+    
+    
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
