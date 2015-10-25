@@ -6,9 +6,9 @@
 //  Copyright (c) 2015 Xing He. All rights reserved.
 //
 
-#import "contentTableViewController.h"
-#import "contenHeaderView.h"
-#import "repliesTableViewCell.h"
+#import "ContentTableViewController.h"
+#import "ContenHeaderView.h"
+#import "RepliesTableViewCell.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "TFHpple.h"
 #import "MyContentImageAttachment.h"
@@ -21,7 +21,7 @@
 #import "SVWebViewControllerActivityCopyLink.h"
 #import "SVWebViewController.h"
 
-@interface contentTableViewController ()
+@interface ContentTableViewController ()
 {
     // Replies item
     NSMutableArray *myReplyObject;
@@ -38,18 +38,20 @@
     
     UIActivityIndicatorView *indicator;
     UIActivityIndicatorView *indicator2;
-    contenHeaderView *headerView;
+    ContenHeaderView *headerView;
 }
 
 @property (nonatomic, strong) NSMutableArray *myObject2;
-@property (nonatomic, strong) NSDictionary *myContentObject;
+@property (nonatomic, copy) NSDictionary *myContentObject;
 
 @end
 
-@implementation contentTableViewController
+@implementation ContentTableViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.tableView.tableFooterView = [[UIView alloc] init];
     
     [self getContentHeaderView];
     
@@ -77,6 +79,8 @@
 {
     [super viewWillAppear:animated];
     
+    [self check3DTouch];
+    
     self.navigationItem.title = @"主题内容";
 
     
@@ -102,6 +106,27 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)check3DTouch {
+    
+    // register for 3D Touch (if available)
+    if (self.traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable) {
+        
+        [self registerForPreviewingWithDelegate:(id)self sourceView:self.view];
+        NSLog(@"3D Touch is available! Hurra!");
+        
+        // no need for our alternative anymore
+        self.longPress.enabled = NO;
+        
+    } else {
+        
+        NSLog(@"3D Touch is not available on this device. Sniff!");
+        
+        // handle a 3D Touch alternative (long gesture recognizer)
+        self.longPress.enabled = YES;
+        
+    }
 }
 
 - (void)pullToRefresh
@@ -162,6 +187,8 @@
         [view removeFromSuperview];
     }];
 }
+
+#pragma mark - Get contents
 
 - (void)getContentHeaderView
 {
@@ -309,35 +336,13 @@
                 
                 [self.refreshControl endRefreshing];
             } else {
+                [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationMiddle];
                 [indicator stopAnimating];
                 [self.refreshControl endRefreshing];
-                [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationMiddle];
             }
         });
     });
 }
-
-#pragma mark - Table view data source
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    // Return the number of sections.
-    return 1;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    // Return the number of rows in the section.
-    return [myReplyObject count];
-}
-
-// Display a blank UIView at the footer cells which not cotain the data.
-// - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
-// {
-//     UIView *view = [[UIView alloc] init];
-//     return view;
-// }
-
 
 - (void)getContentTextViewSpecial
 {
@@ -350,11 +355,11 @@
         NSString *jsonURL = [NSString stringWithFormat:@"https://www.v2ex.com/api/topics/show.json?id=%@", repID];
         
         NSData *jsonSource = [NSData dataWithContentsOfURL:[NSURL URLWithString:jsonURL]];
-            
-            
+        
+        
         id jsonObjects = [NSJSONSerialization JSONObjectWithData:jsonSource
-                                                                 options:NSJSONReadingMutableContainers
-                                                                   error:nil];
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:nil];
         
         for (NSDictionary *dataDick in jsonObjects) {
             
@@ -371,7 +376,7 @@
             
             NSDate *now2 = [NSDate date];
             NSTimeInterval sinceNow2 = [now2 timeIntervalSinceDate:updateTimestamp2];
-                    
+            
             int intervalTime2;
             NSString *contDate_data;
             if (sinceNow2 < 3600) {
@@ -386,9 +391,9 @@
                 intervalTime2 = sinceNow2 / 86400;
                 contDate_data = [NSString stringWithFormat:@"%i 天前", intervalTime2];
             }
-                    
+            
             contDictionary = [NSDictionary dictionaryWithObjectsAndKeys:contDate_data, contentDate,
-                                                                        attrContent_data, topicContent, nil];
+                              attrContent_data, topicContent, nil];
         }
         if (contDictionary) {
             self.myContentObject = [NSDictionary new];
@@ -397,23 +402,23 @@
         
         // Get and convert the last modified timestamp to NSDate
         NSString* contentTime = [self.myContentObject objectForKey:contentDate];
-                
+        
         // Get the topic content item.
         NSString *htmlStringContent;
         htmlStringContent= [self.myContentObject objectForKey:topicContent];
-                
+        
         dispatch_async(dispatch_get_main_queue(), ^{
-                    
+            
             Reachability *networkReachability = [Reachability reachabilityForInternetConnection];
             NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
-                    
+            
             if (networkStatus == NotReachable) {
                 [self showConnectionAlertView];
-                        
+                
                 [self.refreshControl endRefreshing];
             } else if (!jsonSource) {
                 [self showConnectionAlertView];
-                        
+                
                 [self.refreshControl endRefreshing];
             } else {
                 
@@ -449,7 +454,7 @@
                 self.tableView.tableHeaderView = headerView;
                 [indicator2 stopAnimating];
                 [headerView sizeToFit];
-            
+                
                 if (attrContent_data) {
                     indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
                     indicator.frame = CGRectMake(0, headerFrame.size.height, self.tableView.frame.size.width, 21);
@@ -461,7 +466,7 @@
                     [self getTheReplies];
                 }
             }
-                
+            
         });
     });
 }
@@ -473,11 +478,11 @@
         NSString *repID = [self.contentAssets objectForKeyedSubscript:self.titleID];
         NSString *contents = [NSString stringWithFormat:@"https://www.v2ex.com%@", repID];
         NSURL *contentsURL = [NSURL URLWithString:contents];
-    
+        
         NSData *contentsHTMLData = [NSData dataWithContentsOfURL:contentsURL];
-    
+        
         TFHpple *contentsParser = [TFHpple hppleWithHTMLData:contentsHTMLData];
-    
+        
         // Get the date nodes
         NSString *dateXPathQueryString = @"//small[@class='gray'][1]";
         NSArray *dateNodes = [contentsParser searchWithXPathQuery:dateXPathQueryString];
@@ -506,18 +511,18 @@
                 if ([subString containsString:@"天"]) {
                     unitString = @" 天前";
                 }
-                    
+                
                 
                 readableDate = [NSString stringWithFormat:@"%@%@", dateStringArray[0], unitString];
             }
         }
-    
-    
+        
+        
         // Get the content item and convert to html format, then set the NSMutableAttributedString in the main thread.
         NSString *contentXPathQueryString = @"//div[@class='topic_content'][1]";
         NSArray *contentNodes = [contentsParser searchWithXPathQuery:contentXPathQueryString];
         NSString *contentText;
-            
+        
         for (TFHppleElement *element2 in contentNodes) {
             contentText = [element2 raw];
             break;
@@ -527,7 +532,7 @@
             contentText = @"";
         }
         
-    
+        
         /*
          NSString *htmlString = [NSString stringWithFormat:@"<html><body>%@</body></html>", contentText];
          NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{ NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, } documentAttributes:nil error:nil];
@@ -535,41 +540,41 @@
          [paragraphStyle setLineSpacing:3];
          [attrStr addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [attrStr length])];
          */
-    
-    
+        
+        
         // Get and convert the last modified timestamp to NSDate
-    
+        
         /*
          NSTimeInterval timestamp = (NSTimeInterval)timestampcvt;
          NSDate *updateTimestamp = [NSDate dateWithTimeIntervalSince1970:timestamp];
-             
+         
          NSDate *now = [NSDate date];
          NSTimeInterval sinceNow = [now timeIntervalSinceDate:updateTimestamp];
-             
+         
          int intervalTime;
          NSString *readableTime;
          if (sinceNow < 3600) {
-            intervalTime = sinceNow / 60;
-            readableTime = [NSString stringWithFormat:@"%im", intervalTime];
+         intervalTime = sinceNow / 60;
+         readableTime = [NSString stringWithFormat:@"%im", intervalTime];
          }
          else if (sinceNow > 3600 && sinceNow < 86400) {
-            intervalTime = sinceNow / 3600;
-            readableTime = [NSString stringWithFormat:@"%ih", intervalTime];
+         intervalTime = sinceNow / 3600;
+         readableTime = [NSString stringWithFormat:@"%ih", intervalTime];
          }
          else if (sinceNow >= 86400) {
-            intervalTime = sinceNow / 86400;
-            readableTime = [NSString stringWithFormat:@"%id", intervalTime];
+         intervalTime = sinceNow / 86400;
+         readableTime = [NSString stringWithFormat:@"%id", intervalTime];
          }
          */
-    
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [indicator stopAnimating];
             Reachability *networkReachability = [Reachability reachabilityForInternetConnection];
             NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
-                
+            
             if (networkStatus == NotReachable) {
                 [self showConnectionAlertView];
-                    
+                
                 [self.refreshControl endRefreshing];
             }
             else if (!contentsHTMLData) {
@@ -585,10 +590,10 @@
                 NSString *styledHTML = [self styledHTMLwithHTML:textContent];
                 NSMutableAttributedString *attrStrContent = [self attributedStringWithHTML:styledHTML];
                 NSLog(@"ATTRSTR: %@", attrStrContent);
-        
+                
                 NSMutableString *textTitle;
                 textTitle = [self.contentAssets objectForKeyedSubscript:self.item];
-        
+                
                 headerView.timeLabel.text = readableDate;
                 // UITextView Settings
                 headerView.contentTextView.delegate = self;
@@ -598,30 +603,30 @@
                 headerView.contentTextView.textContainerInset = UIEdgeInsetsMake(0, -5, -0, -5);
                 [headerView.contentTextView setTranslatesAutoresizingMaskIntoConstraints:NO];
                 headerView.contentSepView.backgroundColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1];
-            
+                
                 if ([contentText isEqualToString:@""]) {
                     [headerView.contentSepView removeFromSuperview];
                     [headerView.contentTextView removeFromSuperview];
                     [indicator2 stopAnimating];
                 }
-            
+                
                 CGRect headerFrame = self.tableView.tableHeaderView.frame;
                 CGFloat contentTextViewHeight = [self textViewHeightForAttributedText:attrStrContent andWidth:headerView.contentTextView.frame.size.width];
-                    
+                
                 headerFrame.size.height = contentTextViewHeight + headerView.titleLabel.intrinsicContentSize.height + headerView.lzIDLabel.intrinsicContentSize.height + 20;
                 NSLog(@"TITLELABELHEIGHT: %f", contentTextViewHeight);
                 headerView.frame = headerFrame;
                 self.tableView.tableHeaderView = headerView;
                 [indicator2 stopAnimating];
                 [headerView sizeToFit];
-            
+                
                 if (contentText) {
                     indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
                     indicator.frame = CGRectMake(0, headerFrame.size.height, self.tableView.frame.size.width, 21);
                     [self.tableView addSubview:indicator];
                     [indicator startAnimating];
                 }
-            
+                
                 if (readableDate) {
                     [self getTheReplies];
                 }
@@ -629,6 +634,28 @@
         });
     });
 }
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    // Return the number of sections.
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    // Return the number of rows in the section.
+    return [myReplyObject count];
+}
+
+// Display a blank UIView at the footer cells which not cotain the data.
+// - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+// {
+//     UIView *view = [[UIView alloc] init];
+//     return view;
+// }
+
 
 - (NSString *)styledHTMLwithHTML:(NSString *)HTML
 {
@@ -656,6 +683,19 @@
                                       [attributedString addAttribute:NSAttachmentAttributeName value:attachment range:range];
                                   }
                               }];
+    
+    // Remove the underline of linkiiwj
+    [attributedString beginEditing];
+    [attributedString enumerateAttribute:NSUnderlineStyleAttributeName
+                                 inRange:NSMakeRange(0, attributedString.length)
+                                 options:0
+                              usingBlock:^(id value, NSRange range, BOOL *stop) {
+                                  if (value) {
+                                      [attributedString addAttribute:NSUnderlineStyleAttributeName value:@(NSUnderlineStyleNone) range:range];
+                                  }
+                              }];
+    [attributedString endEditing];
+    
     return attributedString;
 }
 
@@ -724,7 +764,58 @@
     }
 }
 */
+- (void)attributedLabel:(TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url
+{
+    // User tapped on a link, do something
+    
+    NSString *atID = [NSString stringWithFormat:@"%@", url];
+    if ([atID containsString:@"."]) {
+            
+        if ([atID containsString:@"@"]) {
+            
+            if ([[UIApplication sharedApplication] canOpenURL:url]) {
+                [[UIApplication sharedApplication] openURL:url];
+            }
+            
+        } else {
+                
+            // Open the website here
+            SFSafariViewController *webViewController = [[SFSafariViewController alloc] initWithURL:url];
+            [self presentViewController:webViewController animated:YES completion:nil];
+                
+        }
+    }
+}
 
+- (void)attributedLabel:(TTTAttributedLabel *)label didLongPressLinkWithURL:(NSURL *)url atPoint:(CGPoint)point;
+{
+    NSString *atID = [NSString stringWithFormat:@"%@", url];
+    if ([atID containsString:@"."]) {
+            
+        NSArray *activities = @[[SVWebViewControllerActivityCopyLink new], [SVWebViewControllerActivitySafari new], [SVWebViewControllerActivityChrome new]];
+            
+        if ([[url absoluteString] hasPrefix:@"file:///"]) {
+            UIDocumentInteractionController *dc = [UIDocumentInteractionController interactionControllerWithURL:url];
+            [dc presentOptionsMenuFromRect:self.view.bounds inView:self.view animated:YES];
+        } else {
+            NSArray *objectsToShare = @[url];
+            
+            UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:objectsToShare applicationActivities:activities];
+                
+#ifdef __IPHONE_8_0
+            if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1 &&
+                UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+            {
+                UIPopoverPresentationController *ctrl = activityController.popoverPresentationController;
+                ctrl.sourceView = self.view;
+            }
+#endif
+                
+            [self presentViewController:activityController animated:YES completion:nil];
+        }
+        
+    }
+}
 
 - (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange
 {
@@ -759,8 +850,8 @@
                 NSLog(@"URL IS: %@", URL);
         
                 // Open the website here
-                SVWebViewController *webViewController = [[SVWebViewController alloc] initWithURL:URL];
-                [self.navigationController pushViewController:webViewController animated:YES];
+                SFSafariViewController *webViewController = [[SFSafariViewController alloc] initWithURL:URL];
+                [self presentViewController:webViewController animated:YES completion:nil];
                 
                 return NO;
             }
@@ -770,14 +861,52 @@
     return NO;
 }
 
+- (UIViewController *)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
+{
+    NSLog(@"TEST");
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:location];
+    
+    if (indexPath) {
+        RepliesTableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+        CGPoint const convertedPoint = [cell.repliesLabel convertPoint:location fromView:self.tableView];
+        TTTAttributedLabelLink *link = [cell.repliesLabel linkAtPoint:convertedPoint];
+        NSString *URLString = [NSString stringWithFormat:@"%@", link.result.URL];
+        if ([URLString containsString:@"."]) {
+            
+            if ([URLString containsString:@"@"]) {
+                return nil;
+            } else {
+                
+                NSLog(@"URL IS: %@", URLString);
+                
+                // Open the website here
+                SFSafariViewController *webViewController = [[SFSafariViewController alloc] initWithURL:link.result.URL];
+                
+                return webViewController;
+            }
+        }
+    }
+    
+    return nil;
+}
+
+- (void)previewingContext:(id <UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
+{
+    NSLog(@"pop");
+    
+    SFSafariViewController *vc = (SFSafariViewController *)viewControllerToCommit;
+    [self presentViewController:vc animated:YES completion:nil];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *ID = @"repliesTableViewCell";
     
-    repliesTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    RepliesTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
     
     if (cell == nil) {
-        cell = [[repliesTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+        cell = [[RepliesTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
     }
     
     // The second UITableViewCell, cell2
@@ -801,28 +930,29 @@
     
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            // Asynchronously Settings of the IDImageView
-            [cell.repliesImageView setImageWithURL:url2 placeholderImage:[UIImage imageNamed:@"avatarPlaceholder"]];
     
             // Settings of labels.
             cell.repliesID.text = textRepID;
     
             // UITextView Settings
-            cell.repliesTextView.delegate = self;
-            cell.repliesTextView.attributedText = textRepContent;
+            cell.repliesLabel.text = textRepContent;
+            cell.repliesLabel.delegate = self;
     
             cell.repliesTime.text = readableTime;
+            
+            if (readableTime) {
+                // Asynchronously Settings of the IDImageView
+                [cell.repliesImageView setImageWithURL:url2 placeholderImage:[UIImage imageNamed:@"avatarPlaceholder"]];
+                
+                // Setup the cell separator line margins
+                // cell2.preservesSuperviewLayoutMargins = NO;
+                
+                UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 1)];
+                separatorView.backgroundColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1];
+                [cell.contentView addSubview:separatorView];
+            }
         });
     });
-    
-    // Setup the cell separator line margins
-    // cell2.preservesSuperviewLayoutMargins = NO;
-    
-    UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 1)];
-    separatorView.backgroundColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1];
-    [cell.contentView addSubview:separatorView];
-    
-    [indicator stopAnimating];
     
     // Make cell.contentView interactive
     cell.contentView.userInteractionEnabled = YES;
@@ -832,9 +962,9 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return [tableView fd_heightForCellWithIdentifier:@"repliesTableViewCell" cacheByIndexPath:indexPath configuration:^(repliesTableViewCell *cell) {
+    return [tableView fd_heightForCellWithIdentifier:@"repliesTableViewCell" cacheByIndexPath:indexPath configuration:^(RepliesTableViewCell *cell) {
         if (cell == nil) {
-            cell = [[repliesTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"repliesTableViewCell"];
+            cell = [[RepliesTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"repliesTableViewCell"];
         }
         
         // The second UITableViewCell, cell2
@@ -863,7 +993,7 @@
         cell.repliesID.text = textRepID;
         
         // UITextView Settings
-        cell.repliesTextView.attributedText = textRepContent;
+        cell.repliesLabel.attributedText = textRepContent;
         
         cell.repliesTime.text = readableTime;
     }];

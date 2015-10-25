@@ -7,11 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TTTAttributedLabel.h"
 
-@interface repliesTableViewCell : UITableViewCell <UITextViewDelegate>
+@interface RepliesTableViewCell : UITableViewCell <UITextViewDelegate, TTTAttributedLabelDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *repliesImageView;
 @property (weak, nonatomic) IBOutlet UILabel *repliesID;
-@property (weak, nonatomic) IBOutlet UITextView *repliesTextView;
+@property (weak, nonatomic) IBOutlet TTTAttributedLabel *repliesLabel;
 @property (weak, nonatomic) IBOutlet UILabel *repliesTime;
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *textViewConstraintHeight;

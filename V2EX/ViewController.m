@@ -8,17 +8,18 @@
 
 #import "ViewController.h"
 #import "AllTableViewCell.h"
-#import "contentTableViewController.h"
+#import "ContentTableViewController.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "Reachability.h"
 #import "SWRevealViewController.h"
 #import "TFHpple.h"
 #import "UITableView+FDTemplateLayoutCell.h"
+#import "LoginViewController.h"
 
 @interface ViewController ()
 
 @property (weak, nonatomic) IBOutlet UILabel *itemLabel;
-@property (nonatomic, strong) NSDictionary *toContent;
+@property (nonatomic, copy) NSDictionary *toContent;
 
 @end
 
@@ -309,7 +310,7 @@
 {
     if ([segue.identifier isEqualToString:@"contentSegue"]) {
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-        contentTableViewController *dvc = segue.destinationViewController;
+        ContentTableViewController *dvc = segue.destinationViewController;
         dvc.contentAssets = [self.myObject objectAtIndex:indexPath.row];
         dvc.exchangeID = self.navigationItem.title;
     }
@@ -482,6 +483,10 @@
 }
 
 
+- (IBAction)signInButton:(id)sender
+{
+    
+}
 
 - (IBAction)sidebarButton:(UIBarButtonItem *)sender {
 }

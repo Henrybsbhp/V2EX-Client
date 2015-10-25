@@ -6,10 +6,10 @@
 //  Copyright (c) 2015 Xing He. All rights reserved.
 //
 
-#import "contenHeaderView.h"
-#import "contentTableViewController.h"
+#import "ContenHeaderView.h"
+#import "ContentTableViewController.h"
 
-@implementation contenHeaderView
+@implementation ContenHeaderView
 
 
 - (void)awakeFromNib

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface contenHeaderView : UIView <UIWebViewDelegate, UITextViewDelegate>
+@interface ContenHeaderView : UIView <UIWebViewDelegate, UITextViewDelegate>
 
 @property (nonatomic, weak) IBOutlet UILabel *titleLabel;
 @property (nonatomic, weak) IBOutlet UIImageView *avatarImageView;
