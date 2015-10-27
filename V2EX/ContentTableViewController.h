@@ -18,6 +18,6 @@
 @property NSMutableDictionary *estimatedRowHeightCache;
 @property (nonatomic, strong) UILongPressGestureRecognizer *longPress;
 
-@property (nonatomic, strong) NSString *exchangeID;
+@property (nonatomic, copy) NSString *exchangeID;
 
 @end

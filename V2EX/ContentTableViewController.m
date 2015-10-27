@@ -870,6 +870,7 @@
     if (indexPath) {
         RepliesTableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
         CGPoint const convertedPoint = [cell.repliesLabel convertPoint:location fromView:self.tableView];
+        NSLog(@"CONVERTED POINT: %@", NSStringFromCGPoint(convertedPoint));
         TTTAttributedLabelLink *link = [cell.repliesLabel linkAtPoint:convertedPoint];
         NSString *URLString = [NSString stringWithFormat:@"%@", link.result.URL];
         if ([URLString containsString:@"."]) {
