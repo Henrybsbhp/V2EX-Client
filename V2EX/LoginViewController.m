@@ -9,9 +9,12 @@
 #import "LoginViewController.h"
 #import "TFHpple.h"
 #import "AFHTTPRequestOperation.h"
+#import "AFHTTPSessionManager.h"
 #import "AFHTTPRequestOperationManager.h"
 
 @interface LoginViewController ()
+
+@property (nonatomic, strong) AFHTTPSessionManager *manager;
 
 @end
 
@@ -20,15 +23,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    manager.requestSerializer = [AFJSONRequestSerializer serializer];
-    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    [manager GET:@"https://www.v2ex.com/signin" parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSString *htmlString = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-        NSLog(@"JSON: %@", htmlString);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
-    }];
     // Do any additional setup after loading the view.
 }
 
@@ -46,42 +40,22 @@
             [self alertStatus:@"Please enter Email and Password" :@"Sign in Failed!" :0];
             
         } else {
-            NSString *signIn = [NSString stringWithFormat:@"https://www.v2ex.com/signin"];
-            NSURL *signInURL = [NSURL URLWithString:signIn];
+            self.manager = [AFHTTPSessionManager manager];
+            self.manager.requestSerializer = [AFJSONRequestSerializer serializer];
+            self.manager.responseSerializer = [AFHTTPResponseSerializer serializer];
             
-            NSData *signInHTMLData = [NSData dataWithContentsOfURL:signInURL options:NSDataReadingUncached error:nil];
-            
-            TFHpple *signInParser = [TFHpple hppleWithHTMLData:signInHTMLData];
-            
-            // Get the Once nodes
-            NSString *onceXPathQueryString = @"//input[@name='once']";
-            NSArray *onceNodes = [signInParser searchWithXPathQuery:onceXPathQueryString];
-            NSLog(@"ONCENODES IS: %@", onceNodes);
-            NSString *onceString;
-            
-            for (TFHppleElement *element in onceNodes) {
-                onceString = [element objectForKey:@"value"];
-                NSLog(@"ONCESTRING IS: %@", onceString);
-            }
-            
-            // NSString *post =[[NSString alloc] initWithFormat:@"u=%@&p=%@&once=%@&next=/",[self.txtUsername text],[self.txtPassword text],onceString];
-            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-            manager.requestSerializer = [AFJSONRequestSerializer serializer];
-            [manager.requestSerializer setValue:@"https://www.v2ex.com/signin" forHTTPHeaderField:@"Referer"];
-            manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-            NSDictionary *parameters = @{
-                                         @"once":onceString,
-                                         @"next":@"/",
-                                         @"p":[self.txtPassword text],
-                                         @"u":[self.txtUsername text],
-                                         };
-            NSLog(@"PARAMETERS: %@", parameters);
-            [manager POST:@"https://www.v2ex.com/signin" parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                NSString *htmlString = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-                NSLog(@"JSON: %@", htmlString);
-            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                NSLog(@"Error: %@", error);
-            }];
+            [self.manager GET:@"https://www.v2ex.com/signin" parameters:nil
+                      success:^void(NSURLSessionDataTask * task, id responseObject) {
+                          NSString *HTMLString = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+                          
+                          NSString *once = [self findOnceInHTMLString:HTMLString];
+                          NSLog(@"ONCE: %@", once);
+                          
+                          [self loginWithOnce:once];
+                          
+                      } failure:^void(NSURLSessionDataTask * operation, NSError * error) {
+                          NSLog(@"Error: %@", error);
+                      }];
 
             
             
@@ -130,7 +104,52 @@
     }
 }
 
-- (void) alertStatus:(NSString *)msg :(NSString *)title :(int) tag
+- (void)loginWithOnce:(NSString *)once
+{
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in [storage cookies]) {
+        [storage deleteCookie:cookie];
+    }
+    
+    NSDictionary *parameters = @{
+                                 @"once" : once,
+                                 @"next" : @"/",
+                                 @"p" : self.txtPassword.text,
+                                 @"u" : self.txtUsername.text,
+                                 };
+    
+    NSLog(@"PARAMETERS: %@", parameters);
+    
+    [self.manager.requestSerializer setValue:@"www.v2ex.com" forHTTPHeaderField:@"Host"];
+    [self.manager.requestSerializer setValue:@"https://www.v2ex.com" forHTTPHeaderField:@"Origin"];
+    [self.manager.requestSerializer setValue:@"https://www.v2ex.com/signin" forHTTPHeaderField:@"Referer"];
+    [self.manager.requestSerializer setValue:@"1" forHTTPHeaderField:@"Upgrade-Insecure-Requests"];
+    [self.manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    [self.manager.requestSerializer setValue:@"zh-CN,zh;q=0.8,ja;q=0.6,zh-TW;q=0.4" forHTTPHeaderField:@"Accept-Language"];
+    [self.manager.requestSerializer setValue:@"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36" forHTTPHeaderField:@"User-Agent"];
+    
+    [self.manager POST:@"https://www.v2ex.com/signin" parameters:parameters
+                                                        success:^void(NSURLSessionDataTask * task, id responseObject) {
+                                                            NSString *HTMLString = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+                                                            NSLog(@"%@", HTMLString);
+
+                                                        }failure:^void(NSURLSessionDataTask * operation, NSError * error) {
+                                                       
+                                                        }];
+    
+}
+
+- (NSString *)findOnceInHTMLString:(NSString *)HTMLString
+{
+    NSRange range = [HTMLString rangeOfString:@"(?<=value=\")\\d{5}(?=\" name=\"once\")" options:NSRegularExpressionSearch];
+    if (range.length > 0) {
+        return [HTMLString substringWithRange:range];
+    } else {
+        return nil;
+    }
+}
+
+- (void)alertStatus:(NSString *)msg:(NSString *)title:(int)tag
 {
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title
                                                         message:msg
