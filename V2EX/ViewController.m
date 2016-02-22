@@ -15,6 +15,8 @@
 #import "TFHpple.h"
 #import "UITableView+FDTemplateLayoutCell.h"
 #import "LoginViewController.h"
+#import "V2UserModel.h"
+#import "NetworkManager.h"
 
 @interface ViewController ()
 
@@ -47,6 +49,11 @@
     self.navigationController.navigationBar.tintColor = [UIColor colorWithRed:0.26 green:0.26 blue:0.25 alpha:1];
     [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor colorWithRed:0.26 green:0.26 blue:0.25 alpha:1]}];
     self.tableView.backgroundColor = [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1];
+    
+    NSLog(@"SELF AVATAR IS: %@", [NetworkManager manager].user.member.memberAvatarLarge);
+    NSURL *avatURL = [NSURL URLWithString:[NetworkManager manager].user.member.memberAvatarLarge];
+    [self.selfAvatar setImageWithURL:avatURL placeholderImage:[UIImage imageNamed:@"avatarPlaceholder"]];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated

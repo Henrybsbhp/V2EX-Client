@@ -75,7 +75,7 @@
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    // Transfer the title name to ViewController;
+    // Transfer the title name to the ViewController;
     NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
     UINavigationController *destViewController = segue.destinationViewController;
     ViewController *showTitleViewController = [destViewController childViewControllers].firstObject;

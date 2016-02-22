@@ -780,8 +780,7 @@
         } else {
                 
             // Open the website here
-            SFSafariViewController *webViewController = [[SFSafariViewController alloc] initWithURL:url];
-            [self presentViewController:webViewController animated:YES completion:nil];
+            [self openURLWithSafariViewController:url];
                 
         }
     }
@@ -850,8 +849,7 @@
                 NSLog(@"URL IS: %@", URL);
         
                 // Open the website here
-                SFSafariViewController *webViewController = [[SFSafariViewController alloc] initWithURL:URL];
-                [self presentViewController:webViewController animated:YES completion:nil];
+                [self openURLWithSafariViewController:URL];
                 
                 return NO;
             }
@@ -859,6 +857,12 @@
     }
     
     return NO;
+}
+
+- (void)openURLWithSafariViewController:(NSURL *)URL
+{
+    SFSafariViewController *webViewController = [[SFSafariViewController alloc] initWithURL:URL];
+    [self presentViewController:webViewController animated:YES completion:nil];
 }
 
 - (UIViewController *)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
