@@ -10,6 +10,7 @@
 #import "ViewController.h"
 #import "contentTableViewController.h"
 #import "AFNetworkActivityIndicatorManager.h"
+#import "IQKeyboardManager.h"
 
 @interface AppDelegate ()
 
@@ -20,6 +21,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [AFNetworkActivityIndicatorManager sharedManager].enabled = YES;
+    [IQKeyboardManager sharedManager].enable = NO;
+    
     return YES;
 }
 

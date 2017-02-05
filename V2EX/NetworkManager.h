@@ -31,12 +31,16 @@ typedef NS_ENUM(NSInteger, V2ErrorType) {
 
 + (instancetype)manager;
 
-- (NSURLSessionDataTask *)requestOnceWithURLString:(NSString *)urlString success:(void (^)(NSString *onceString))success
+- (NSURLSessionDataTask *)requestOnceWithURLString:(NSString *)urlString success:(void (^)(NSDictionary *stringDict))success
                                            failure:(void (^)(NSError *error))failure;
 
 - (NSURLSessionDataTask *)loginWithUsername:(NSString *)username password:(NSString *)password
                                     success:(void (^)(NSString *message))success
                                     failure:(void (^)(NSError *error))failure;
+
+- (NSURLSessionDataTask *)replyWithContent:(NSString *)content url:(NSString *)url
+                                   success:(void (^)(NSString *message))success
+                                   failure:(void (^)(NSError *error))failure;
 
 - (NSString *)findOnceInHTMLString:(NSString *)HTMLString;
 

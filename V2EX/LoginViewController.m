@@ -20,6 +20,11 @@
 
 @implementation LoginViewController
 
+- (void)dealloc
+{
+    NSLog(@"LoginViewController deallocated");
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -31,64 +36,53 @@
 }
 - (IBAction)signinClicked:(id)sender
 {
-    NSInteger success = 0;
-    @try {
+
         
-        if([[self.txtUsername text] isEqualToString:@""] || [[self.txtPassword text] isEqualToString:@""] ) {
+    if([[self.txtUsername text] isEqualToString:@""] || [[self.txtPassword text] isEqualToString:@""] ) {
             
-            [self alertStatus:@"Please enter Email and Password" :@"Sign in Failed!" :0];
+        [self alertStatus:@"请输入用户名和密码" :@"登录失败!" :0];
             
-        } else {
-            
-            [[NetworkManager manager] loginWithUsername:self.txtUsername.text password:self.txtPassword.text success:^(NSString *message) {
+    } else {
+        
+        [[NetworkManager manager] loginWithUsername:self.txtUsername.text password:self.txtPassword.text success:^(NSString *message) {
 
-                [[NetworkManager manager] getMemberProfileWithUserId:nil username:self.txtUsername.text success:^(V2MemberModel *member) {
+            [[NetworkManager manager] getMemberProfileWithUserId:nil username:self.txtUsername.text success:^(V2MemberModel *member) {
                     
-                    V2UserModel *user = [[V2UserModel alloc] init];
+                V2UserModel *user = [[V2UserModel alloc] init];
                     
-                    user.member = member;
-                    user.name = member.memberName;
-                    
-                    
-                    [NetworkManager manager].user = user;
+                user.member = member;
+                user.name = member.memberName;
                     
                     
-                    
-                    [self dismissViewControllerAnimated:YES completion:nil];
-                    
-                } failure:^(NSError *error) {
+                [NetworkManager manager].user = user;
                     
                     
-                }];
-                
+                    
+                [self dismissViewControllerAnimated:YES completion:nil];
+                    
             } failure:^(NSError *error) {
-                
-                NSString *reasonString;
-                
-                if (error.code < 700) {
-                    reasonString = @"请检查网络状态";
-                } else {
-                    reasonString = @"请检查用户名或密码";
-                }
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"登录失败" message: reasonString delegate:nil cancelButtonTitle:@"确定" otherButtonTitles: nil, nil];
-                
-                [alertView show];
-                
+                    
+                    
             }];
+                
+        } failure:^(NSError *error) {
+                
+            NSString *reasonString;
+                
+            if (error.code < 700) {
+                reasonString = @"请检查网络状态";
+            } else {
+                reasonString = @"请检查用户名或密码";
+            }
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"登录失败" message: reasonString delegate:nil cancelButtonTitle:@"确定" otherButtonTitles: nil, nil];
+                
+            [alertView show];
+                
+        }];
             
-        }
     }
-    @catch (NSException * e) {
-        NSLog(@"Exception: %@", e);
-        [self alertStatus:@"Sign in Failed." :@"Error!" :0];
-    }
-    if (success) {
-        [self performSegueWithIdentifier:@"login_success" sender:self];
-    }
+
 }
-
-
-
 
 - (void)alertStatus:(NSString *)msg:(NSString *)title:(int)tag
 {

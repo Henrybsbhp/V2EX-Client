@@ -17,11 +17,13 @@
 #import "LoginViewController.h"
 #import "V2UserModel.h"
 #import "NetworkManager.h"
+#import "SJBannerAlertView.h"
 
-@interface ViewController ()
+@interface ViewController () <UIActionSheetDelegate>
 
 @property (weak, nonatomic) IBOutlet UILabel *itemLabel;
 @property (nonatomic, copy) NSDictionary *toContent;
+@property (nonatomic, retain) UIView *bannerView;
 
 @end
 
@@ -50,10 +52,6 @@
     [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor colorWithRed:0.26 green:0.26 blue:0.25 alpha:1]}];
     self.tableView.backgroundColor = [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1];
     
-    NSLog(@"SELF AVATAR IS: %@", [NetworkManager manager].user.member.memberAvatarLarge);
-    NSURL *avatURL = [NSURL URLWithString:[NetworkManager manager].user.member.memberAvatarLarge];
-    [self.selfAvatar setImageWithURL:avatURL placeholderImage:[UIImage imageNamed:@"avatarPlaceholder"]];
-    
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -72,6 +70,10 @@
         [self.sidebarButton setAction: @selector(revealToggle:)];
         [self.tableView addGestureRecognizer:self.revealViewController.panGestureRecognizer];
     }
+    
+    NSLog(@"SELF AVATAR IS: %@", [NetworkManager manager].user.member.memberAvatarLarge);
+    NSURL *avatURL = [NSURL URLWithString:[NetworkManager manager].user.member.memberAvatarLarge];
+    [self.selfAvatar setImageWithURL:avatURL placeholderImage:[UIImage imageNamed:@"avatarPlaceholder"]];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -106,44 +108,64 @@
 
 - (void)showConnectionAlertView
 {
-    // Create a view to hold the label and add images or whatever, place it off screen at -100
-    UIView *alertView = [[UIView alloc] initWithFrame:CGRectMake(0, -100, CGRectGetWidth(self.view.bounds), 25)];
-    alertView.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.7f];
-    
-    // Create a label to display the message and add it to the alertView
-    UILabel *theMessage = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(alertView.bounds), CGRectGetHeight(alertView.bounds))];
-    theMessage.text = @"无网络连接，请稍候重试";
-    theMessage.font = [UIFont systemFontOfSize:12];
-    theMessage.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.0f];
-    theMessage.textColor = [UIColor whiteColor];
-    theMessage.textAlignment = NSTextAlignmentCenter;
-    [alertView addSubview:theMessage];
-    
-    // Add the alertView to the view
-    [self.view addSubview:alertView];
+    self.bannerView = [SJBannerAlertView showBannerAlertViewWithMessage:@"无网络连接，请稍候重试" backgroundColor:[UIColor redColor] alpha:0.9f onTargetView:self.navigationController.navigationBar withViewController:self];
     
     // Create the ending frame or where you want it to end up on screen, in this case 0 y origin
-    CGRect newFrm = alertView.frame;
-    newFrm.origin.y = 0;
+    CGRect newFrm = self.bannerView.frame;
+//    newFrm.origin.y = self.navigationController.navigationBar.frame.size.height;
+    newFrm.origin.y = 64;
+    self.bannerView.alpha = 0.0f;
+    self.bannerView.frame = newFrm;
+    newFrm.size.height = 25;
+    
+    UILabel *label1;
+    for (UILabel *label in self.bannerView.subviews) {
+        label1 = label;
+    }
+    CGRect labelFrame = label1.frame;
+    labelFrame.size.height = 0;
+    label1.frame = labelFrame;
+    labelFrame.size.height = 25;
     
     // Animate it in
     [UIView animateWithDuration:0.4f animations:^{
-        alertView.frame = newFrm;
+        //        self.bannerView.frame = newFrm;
+        self.bannerView.frame = newFrm;
+        label1.frame = labelFrame;
+        self.bannerView.alpha = 0.9f;
     }];
     
-    [self performSelector:@selector(dismissViewController:) withObject:alertView afterDelay:3.0f];
+    [self performSelector:@selector(dismissViewController:) withObject:self.bannerView afterDelay:3.0f];
+    
 }
 
 - (void)dismissViewController:(UIView *)view
 {
-    CGRect newFrm = view.frame;
-    newFrm.origin.y = -100;
+//    CGRect newFrm = view.frame;
+//    newFrm.origin.y = 0;
+//    
+//    [UIView animateWithDuration:0.4f animations:^{
+//        view.frame = newFrm;
+//    } completion:^(BOOL finished){
+//        [view removeFromSuperview];
+//    }];
     
-    [UIView animateWithDuration:0.4f animations:^{
-        view.frame = newFrm;
-    } completion:^(BOOL finished){
-        [view removeFromSuperview];
-    }];
+    UILabel *label1;
+    for (UILabel *label in view.subviews) {
+        label1 = label;
+    }
+    [UIView animateWithDuration:0.4f
+                     animations:^{
+                         CGRect frame = view.frame;
+                         CGRect frame2 = label1.frame;
+                         frame.size.height = 0;
+                         frame2.size.height = 0;
+                         view.frame = frame;
+                         label1.frame = frame2;
+                     }
+                     completion:^(BOOL finished){
+                         [view removeFromSuperview];
+                     }];
 }
 
 - (void)getLatestTitle
@@ -178,8 +200,14 @@
             URLString = @"https://www.v2ex.com/?tab=all";
         }
     
+        NSString *userAgent = @"Mozilla/5.0 (iPhone; CPU iPhone OS 9_3 like Mac OS X) AppleWebKit/601.1.46(KHTML, like Gecko) Version/9.0 Mobile/13E188a Safari/601.1";
         NSURL *tabURL = [NSURL URLWithString:URLString];
-        NSData *tabHTMLData = [NSData dataWithContentsOfURL:tabURL];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:tabURL];
+        [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
+        
+        NSURLResponse *response = nil;
+        NSError *error = nil;
+        NSData *tabHTMLData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
         
     
         // 2
@@ -219,7 +247,7 @@
             }
             
             // Get the username lists
-            NSString *usernameXPathQueryString = @"//span[@class='small fade']/strong[1]/a";
+            NSString *usernameXPathQueryString = @"//span[@class='small fade'][1]/strong[1]/a";
             NSArray *usernameNodes = [element searchWithXPathQuery:usernameXPathQueryString];
             for (TFHppleElement *element3 in usernameNodes) {
                 username_data = [[element3 firstChild] content];
@@ -249,7 +277,7 @@
             }
             
             // Get the reply date;
-            NSString *replyDateXPathQueryString = @"//span[@class='small fade']";
+            NSString *replyDateXPathQueryString = @"//span[@class='small fade'][2]";
             NSArray *replyDateNodes = [element searchWithXPathQuery:replyDateXPathQueryString];
             for (TFHppleElement *element6 in replyDateNodes) {
                 NSString *dateDataString = [element6 content];
@@ -257,7 +285,7 @@
                 if (dateArray.count > 2) {
                     date_data = dateArray[2];
                 } else {
-                    date_data = [dateDataString stringByReplacingOccurrencesOfString:@"  •  (.*?)$" withString:@""];
+                    date_data = dateArray.firstObject;
                 }
                 NSLog(@"DATETEMPSTRING: %@", date_data);
             }
@@ -292,11 +320,15 @@
                     
                 if (networkStatus == NotReachable) {
                         
+//                    [SJBannerAlertView showBannerAlertViewWithMessage:@"无网络连接，请稍候重试" backgroundColor:[UIColor redColor] alpha:0.9f onTargetView:self.navigationController.view];
+                    
                     [self showConnectionAlertView];
                 }
                     
                 else if (!tabHTMLData) {
                         
+//                    [SJBannerAlertView showBannerAlertViewWithMessage:@"无网络连接，请稍候重试" backgroundColor:[UIColor redColor] alpha:0.9f onTargetView:self.navigationController.view];
+                    
                     [self showConnectionAlertView];
                         
                 }
@@ -489,10 +521,60 @@
     return cell;
 }
 
+//- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+//    CGRect frame = self.bannerView.frame;
+//    frame.origin.y = self.tableView.contentOffset.y + 64;
+//    self.bannerView.frame = frame;
+//    
+//    [self.view bringSubviewToFront:self.bannerView];
+//}
+
 
 - (IBAction)signInButton:(id)sender
 {
+    BOOL isLogin = [[[NSUserDefaults standardUserDefaults] objectForKey:@"userIsLogin"] boolValue];
     
+    if (isLogin) {
+        
+        UIActionSheet * sheet = [[UIActionSheet alloc] initWithTitle:@"您是否需要注销账户？"
+                                                            delegate:self
+                                                   cancelButtonTitle:@"取消"
+                                              destructiveButtonTitle:@"注销账号"
+                                                   otherButtonTitles:nil,nil];
+        
+        [sheet showInView:self.view];
+        
+
+    } else {
+        
+        if ([UIApplication sharedApplication].delegate.window.rootViewController.presentedViewController == nil) {
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+            LoginViewController *loginViewController = [storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+            [[UIApplication sharedApplication].delegate.window.rootViewController presentViewController:loginViewController animated:YES completion:nil];
+        }
+        
+//        [self presentViewController:self.loginViewController animated:YES completion:nil];
+        
+    }
+    
+}
+
+#pragma mark - UIActionSheetDelegate
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0) {
+        
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userIsLogin"];
+        
+        NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+        for (NSHTTPCookie *cookie in [storage cookies]) {
+            [storage deleteCookie:cookie];
+        }
+        
+        NSURL *avatURL = [NSURL URLWithString:[NetworkManager manager].user.member.memberAvatarLarge];
+        [self.selfAvatar setImageWithURL:avatURL placeholderImage:[UIImage imageNamed:@"avatarPlaceholder"]];
+        
+    }
 }
 
 - (IBAction)sidebarButton:(UIBarButtonItem *)sender {

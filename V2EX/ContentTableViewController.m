@@ -20,6 +20,9 @@
 #import "SVWebViewControllerActivitySafari.h"
 #import "SVWebViewControllerActivityCopyLink.h"
 #import "SVWebViewController.h"
+#import "TopicReplyViewController.h"
+#import "SJBannerAlertView.h"
+#import "Masonry.h"
 
 @interface ContentTableViewController ()
 {
@@ -43,10 +46,29 @@
 
 @property (nonatomic, strong) NSMutableArray *myObject2;
 @property (nonatomic, copy) NSDictionary *myContentObject;
+@property (nonatomic, retain) UIView *bannerView;
+@property (nonatomic, retain) UILabel *bannerLabel;
 
 @end
 
 @implementation ContentTableViewController
+
+- (void)dealloc
+{
+    self.tableView.delegate = nil;
+    self.tableView.dataSource = nil;
+    NSLog(@"contentTableVC deallocated");
+}
+
+- (LoginViewController *)loginViewController
+{
+    if (!_loginViewController) {
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        _loginViewController = [storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+    }
+    
+    return _loginViewController;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -146,46 +168,75 @@
     }
 }
 
-- (void)showConnectionAlertView
+- (void)showBannerAlertViewWithView:(UIView *)view;
 {
     // Create a view to hold the label and add images or whatever, place it off screen at -100
-    UIView *alertView = [[UIView alloc] initWithFrame:CGRectMake(0, -100, CGRectGetWidth(self.view.bounds), 25)];
-    alertView.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.7f];
+    self.bannerView = view;
     
-    // Create a label to display the message and add it to the alertView
-    UILabel *theMessage = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(alertView.bounds), CGRectGetHeight(alertView.bounds))];
-    theMessage.text = @"无网络连接，请稍候重试";
-    theMessage.font = [UIFont systemFontOfSize:12];
-    theMessage.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.0f];
-    theMessage.textColor = [UIColor whiteColor];
-    theMessage.textAlignment = NSTextAlignmentCenter;
-    [alertView addSubview:theMessage];
+//    CGRect frame = self.bannerView.frame;
+//    frame.origin.y = self.tableView.contentOffset.y;
+//    self.bannerView.frame = frame;
+//    
+//    [self.view bringSubviewToFront:self.bannerView];
+//    
+//    // Create the ending frame or where you want it to end up on screen, in this case 0 y origin
+//    CGRect newFrm = self.bannerView.frame;
+//    newFrm.origin.y = self.tableView.contentOffset.y + 64;
     
-    // Add the alertView to the view
-    [self.view addSubview:alertView];
+    CGRect newFrame = self.bannerView.frame;
+//    newFrame.origin.y = self.navigationController.navigationBar.frame.origin.y + 24;
+    newFrame.origin.y = 64;
+    newFrame.size.height = 0;
+    self.bannerView.alpha = 0.0f;
+    self.bannerView.frame = newFrame;
+    newFrame.size.height = 25;
     
-    // Create the ending frame or where you want it to end up on screen, in this case 0 y origin
-    CGRect newFrm = alertView.frame;
-    newFrm.origin.y = 0;
+    UILabel *label1;
+    for (UILabel *label in self.bannerView.subviews) {
+        label1 = label;
+    }
+    CGRect labelFrame = label1.frame;
+    labelFrame.size.height = 0;
+    label1.frame = labelFrame;
+    labelFrame.size.height = 25;
     
     // Animate it in
     [UIView animateWithDuration:0.4f animations:^{
-        alertView.frame = newFrm;
+//        self.bannerView.frame = newFrm;
+        self.bannerView.frame = newFrame;
+        label1.frame = labelFrame;
+        self.bannerView.alpha = 0.9f;
     }];
     
-    [self performSelector:@selector(dismissViewController:) withObject:alertView afterDelay:2.0f];
+    [self performSelector:@selector(dismissViewController:) withObject:self.bannerView afterDelay:3.0f];
 }
 
 - (void)dismissViewController:(UIView *)view
 {
-    CGRect newFrm = view.frame;
-    newFrm.origin.y = -100;
-    
-    [UIView animateWithDuration:0.4f animations:^{
-        view.frame = newFrm;
-    } completion:^(BOOL finished){
-        [view removeFromSuperview];
-    }];
+//    CGRect newFrm = view.frame;
+//    newFrm.origin.y = -164;
+//    
+//    [UIView animateWithDuration:0.4f animations:^{
+//        view.frame = newFrm;
+//    } completion:^(BOOL finished){
+//        [view removeFromSuperview];
+//    }];
+    UILabel *label1;
+    for (UILabel *label in view.subviews) {
+        label1 = label;
+    }
+    [UIView animateWithDuration:0.4f
+                     animations:^{
+                         CGRect frame = view.frame;
+                         CGRect frame2 = label1.frame;
+                         frame.size.height = 0;
+                         frame2.size.height = 0;
+                         view.frame = frame;
+                         label1.frame = frame2;
+                     }
+                     completion:^(BOOL finished){
+                         [view removeFromSuperview];
+                     }];
 }
 
 #pragma mark - Get contents
@@ -328,11 +379,11 @@
             NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
             
             if (networkStatus == NotReachable) {
-                [self showConnectionAlertView];
+                [self showBannerAlertViewWithView:[SJBannerAlertView showBannerAlertViewWithMessage:@"无网络连接，请稍候重试" backgroundColor:[UIColor redColor] alpha:0.9f onTargetView:self.view withViewController:self]];
                 
                 [self.refreshControl endRefreshing];
             } else if (!jsonSource) {
-                [self showConnectionAlertView];
+                [self showBannerAlertViewWithView:[SJBannerAlertView showBannerAlertViewWithMessage:@"无网络连接，请稍候重试" backgroundColor:[UIColor redColor] alpha:0.9f onTargetView:self.view withViewController:self]];
                 
                 [self.refreshControl endRefreshing];
             } else {
@@ -413,11 +464,11 @@
             NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
             
             if (networkStatus == NotReachable) {
-                [self showConnectionAlertView];
+                [self showBannerAlertViewWithView:[SJBannerAlertView showBannerAlertViewWithMessage:@"无网络连接，请稍候重试" backgroundColor:[UIColor redColor] alpha:0.9f onTargetView:self.view withViewController:self]];
                 
                 [self.refreshControl endRefreshing];
             } else if (!jsonSource) {
-                [self showConnectionAlertView];
+                [self showBannerAlertViewWithView:[SJBannerAlertView showBannerAlertViewWithMessage:@"无网络连接，请稍候重试" backgroundColor:[UIColor redColor] alpha:0.9f onTargetView:self.view withViewController:self]];
                 
                 [self.refreshControl endRefreshing];
             } else {
@@ -573,12 +624,12 @@
             NetworkStatus networkStatus = [networkReachability currentReachabilityStatus];
             
             if (networkStatus == NotReachable) {
-                [self showConnectionAlertView];
+                [self showBannerAlertViewWithView:[SJBannerAlertView showBannerAlertViewWithMessage:@"无网络连接，请稍候重试" backgroundColor:[UIColor redColor] alpha:0.9f onTargetView:self.view withViewController:self]];
                 
                 [self.refreshControl endRefreshing];
             }
             else if (!contentsHTMLData) {
-                [self showConnectionAlertView];
+                [self showBannerAlertViewWithView:[SJBannerAlertView showBannerAlertViewWithMessage:@"无网络连接，请稍候重试" backgroundColor:[UIColor redColor] alpha:0.9f onTargetView:self.view withViewController:self]];
                 
                 [self.refreshControl endRefreshing];
             }
@@ -649,7 +700,7 @@
     return [myReplyObject count];
 }
 
-// Display a blank UIView at the footer cells which not cotain the data.
+// Display a blank UIView at the footer cells which not contain the data.
 // - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 // {
 //     UIView *view = [[UIView alloc] init];
@@ -904,6 +955,32 @@
     [self presentViewController:vc animated:YES completion:nil];
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSDictionary *tmpDict = [self.myObject2 objectAtIndex:indexPath.row];
+    
+    // Get the replyer ID item.
+    NSMutableString *textRepID;
+    textRepID = [tmpDict objectForKey:replyID];
+    NSString *textRepIDWithSpace = [NSString stringWithFormat:@"@%@ ", textRepID];
+    NSString *repID = [self.contentAssets objectForKeyedSubscript:@"URLID"];
+    
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    TopicReplyViewController *topicReplyViewController = [storyboard instantiateViewControllerWithIdentifier:@"TopicReplyViewController"];
+    topicReplyViewController.urlString = [NSString stringWithFormat:@"https://www.v2ex.com/t/%@", repID];
+    topicReplyViewController.repUsrID = textRepIDWithSpace;
+    topicReplyViewController.contentTableViewController = self;
+    topicReplyViewController.topicView = self.view;
+    topicReplyViewController.topicTableView = self.tableView;
+    
+    if ([UIApplication sharedApplication].delegate.window.rootViewController.presentedViewController == nil) {
+        [[UIApplication sharedApplication].delegate.window.rootViewController presentViewController:topicReplyViewController animated:YES completion:nil];
+    }
+    
+//    [self presentViewController:self.topicReplyViewController animated:YES completion:nil];
+    
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *ID = @"repliesTableViewCell";
@@ -1004,6 +1081,34 @@
     }];
 }
 
+//- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+//    
+//    CGRect frame = self.bannerView.frame;
+//    frame.origin.y = self.tableView.contentOffset.y + 64;
+//    self.bannerView.frame = frame;
+//    
+//    [self.view bringSubviewToFront:self.bannerView];
+//}
+
+- (IBAction)replyButtonClicked:(id)sender
+{
+    NSString *repID = [self.contentAssets objectForKeyedSubscript:@"URLID"];
+    
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    TopicReplyViewController *topicReplyViewController = [storyboard instantiateViewControllerWithIdentifier:@"TopicReplyViewController"];
+    topicReplyViewController.urlString = [NSString stringWithFormat:@"https://www.v2ex.com/t/%@", repID];
+    topicReplyViewController.contentTableViewController = self;
+    topicReplyViewController.topicView = self.view;
+    topicReplyViewController.topicTableView = self.tableView;
+    
+    if ([UIApplication sharedApplication].delegate.window.rootViewController.presentedViewController == nil) {
+        [[UIApplication sharedApplication].delegate.window.rootViewController presentViewController:topicReplyViewController animated:YES completion:nil];
+    }
+    
+//    [self presentViewController:self.topicReplyViewController animated:YES completion:nil];
+}
+
+
 - (IBAction)shareButton:(id)sender
 {
     NSMutableString *textTitle;
@@ -1037,6 +1142,16 @@
             
             [self presentViewController:activityController animated:YES completion:nil];
         }
+    }
+}
+
+#pragma mark - AlertView Delegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0) {
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        LoginViewController *loginVC = [storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+        [self presentViewController:loginVC animated:YES completion:nil];
     }
 }
 

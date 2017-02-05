@@ -1,0 +1,72 @@
+
+/* Class = "UIBarButtonItem"; title = "取消"; ObjectID = "0BX-fv-TwL"; */
+"0BX-fv-TwL.title" = "取消";
+
+/* Class = "UILabel"; text = "Apple"; ObjectID = "4CI-DY-3uf"; */
+"4CI-DY-3uf.text" = "Apple";
+
+/* Class = "UINavigationItem"; title = "主题内容"; ObjectID = "73M-iq-qrB"; */
+"73M-iq-qrB.title" = "主题内容";
+
+/* Class = "UINavigationItem"; title = "发表回复"; ObjectID = "CoN-yl-gs4"; */
+"CoN-yl-gs4.title" = "发表回复";
+
+/* Class = "UILabel"; text = "创意"; ObjectID = "DxB-D4-3yb"; */
+"DxB-D4-3yb.text" = "创意";
+
+/* Class = "UILabel"; text = "好玩"; ObjectID = "Gal-p6-9vX"; */
+"Gal-p6-9vX.text" = "好玩";
+
+/* Class = "UILabel"; text = "欢迎访问 V2EX"; ObjectID = "IbF-af-dBU"; */
+"IbF-af-dBU.text" = "欢迎访问 V2EX";
+
+/* Class = "UILabel"; text = "•"; ObjectID = "KMh-M7-kIm"; */
+"KMh-M7-kIm.text" = "•";
+
+/* Class = "UILabel"; text = "酷工作"; ObjectID = "Kfj-1m-xWg"; */
+"Kfj-1m-xWg.text" = "酷工作";
+
+/* Class = "UILabel"; text = "城市"; ObjectID = "R0Z-v8-JV6"; */
+"R0Z-v8-JV6.text" = "城市";
+
+/* Class = "UILabel"; text = "全部"; ObjectID = "UkF-qG-Et8"; */
+"UkF-qG-Et8.text" = "全部";
+
+/* Class = "UILabel"; text = "技术"; ObjectID = "Y7a-wP-uAg"; */
+"Y7a-wP-uAg.text" = "技术";
+
+/* Class = "UIButton"; normalTitle = "登陆"; ObjectID = "YWc-qp-jjd"; */
+"YWc-qp-jjd.normalTitle" = "登陆";
+
+/* Class = "UIButton"; normalTitle = "╳"; ObjectID = "ZLJ-vV-dfb"; */
+"ZLJ-vV-dfb.normalTitle" = "╳";
+
+/* Class = "UINavigationItem"; title = "全部"; ObjectID = "aA9-wD-FGl"; */
+"aA9-wD-FGl.title" = "全部";
+
+/* Class = "UILabel"; text = "问与答"; ObjectID = "aaN-hM-TlP"; */
+"aaN-hM-TlP.text" = "问与答";
+
+/* Class = "UILabel"; text = "R2"; ObjectID = "gvY-4f-wYt"; */
+"gvY-4f-wYt.text" = "R2";
+
+/* Class = "UITextField"; placeholder = "请输入账户名..."; ObjectID = "hfB-Xq-bIj"; */
+"hfB-Xq-bIj.placeholder" = "请输入账户名...";
+
+/* Class = "UILabel"; text = "交易"; ObjectID = "i2E-dW-Ylz"; */
+"i2E-dW-Ylz.text" = "交易";
+
+/* Class = "UIBarButtonItem"; title = "发送"; ObjectID = "m6c-9I-FRK"; */
+"m6c-9I-FRK.title" = "发送";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "qWL-HZ-WEX"; */
+"qWL-HZ-WEX.text" = "Label";
+
+/* Class = "UILabel"; text = "最热"; ObjectID = "uKh-lW-IJM"; */
+"uKh-lW-IJM.text" = "最热";
+
+/* Class = "UILabel"; text = "分类："; ObjectID = "uPN-gK-5rJ"; */
+"uPN-gK-5rJ.text" = "分类：";
+
+/* Class = "UITextField"; placeholder = "请输入密码..."; ObjectID = "wrC-EX-qxt"; */
+"wrC-EX-qxt.placeholder" = "请输入密码...";

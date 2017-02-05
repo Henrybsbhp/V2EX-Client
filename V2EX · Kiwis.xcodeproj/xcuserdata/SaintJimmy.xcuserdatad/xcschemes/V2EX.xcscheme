@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FAFC78281B01F76700A34D58"
-               BuildableName = "V2EX &#xb7; &#x8bfb;.app"
-               BlueprintName = "V2EX &#xb7; &#x8bfb;"
-               ReferencedContainer = "container:V2EX &#xb7; &#x8bfb;.xcodeproj">
+               BuildableName = "V2EX &#xb7; Kiwis.app"
+               BlueprintName = "V2EX &#xb7; Kiwis"
+               ReferencedContainer = "container:V2EX &#xb7; Kiwis.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FAFC78411B01F76700A34D58"
-               BuildableName = "V2EX &#xb7; &#x8bfb;.xctest"
-               BlueprintName = "V2EX &#xb7; &#x8bfb;Tests"
-               ReferencedContainer = "container:V2EX &#xb7; &#x8bfb;.xcodeproj">
+               BuildableName = "V2EX &#xb7; Kiwis&#xb7; Kiwis.xctest"
+               BlueprintName = "V2EX &#xb7; KiwisTests"
+               ReferencedContainer = "container:V2EX &#xb7; Kiwis.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FAFC78411B01F76700A34D58"
-               BuildableName = "V2EX &#xb7; &#x8bfb;.xctest"
-               BlueprintName = "V2EX &#xb7; &#x8bfb;Tests"
-               ReferencedContainer = "container:V2EX &#xb7; &#x8bfb;.xcodeproj">
+               BuildableName = "V2EX &#xb7; Kiwis&#xb7; Kiwis.xctest"
+               BlueprintName = "V2EX &#xb7; KiwisTests"
+               ReferencedContainer = "container:V2EX &#xb7; Kiwis.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -57,9 +57,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FAFC78281B01F76700A34D58"
-            BuildableName = "V2EX &#xb7; &#x8bfb;.app"
-            BlueprintName = "V2EX &#xb7; &#x8bfb;"
-            ReferencedContainer = "container:V2EX &#xb7; &#x8bfb;.xcodeproj">
+            BuildableName = "V2EX &#xb7; Kiwis.app"
+            BlueprintName = "V2EX &#xb7; Kiwis"
+            ReferencedContainer = "container:V2EX &#xb7; Kiwis.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -80,9 +80,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FAFC78281B01F76700A34D58"
-            BuildableName = "V2EX &#xb7; &#x8bfb;.app"
-            BlueprintName = "V2EX &#xb7; &#x8bfb;"
-            ReferencedContainer = "container:V2EX &#xb7; &#x8bfb;.xcodeproj">
+            BuildableName = "V2EX &#xb7; Kiwis.app"
+            BlueprintName = "V2EX &#xb7; Kiwis"
+            ReferencedContainer = "container:V2EX &#xb7; Kiwis.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -99,9 +99,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FAFC78281B01F76700A34D58"
-            BuildableName = "V2EX &#xb7; &#x8bfb;.app"
-            BlueprintName = "V2EX &#xb7; &#x8bfb;"
-            ReferencedContainer = "container:V2EX &#xb7; &#x8bfb;.xcodeproj">
+            BuildableName = "V2EX &#xb7; Kiwis.app"
+            BlueprintName = "V2EX &#xb7; Kiwis"
+            ReferencedContainer = "container:V2EX &#xb7; Kiwis.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

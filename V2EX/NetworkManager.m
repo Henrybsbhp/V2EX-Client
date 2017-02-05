@@ -11,6 +11,7 @@
 #import "AFHTTPRequestOperation.h"
 #import "AFHTTPSessionManager.h"
 #import "AFHTTPRequestOperationManager.h"
+#import "HTMLParser.h"
 
 typedef NS_ENUM(NSInteger, V2RequestMethod) {
     V2RequestMethodJSONGET    = 1,
@@ -91,18 +92,35 @@ static NSString *const kUserIsLogin = @"userIsLogin";
     
 }
 
-- (NSURLSessionDataTask *)requestOnceWithURLString:(NSString *)urlString success:(void (^)(NSString *onceString))success
+- (NSURLSessionDataTask *)requestOnceWithURLString:(NSString *)urlString success:(void (^)(NSDictionary *stringDict))success
                                            failure:(void (^)(NSError *error))failure {
     
     return [self requestWithMethod:V2RequestMethodHTTPGET URLString:urlString parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
         
         NSString *HTMLString = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
         
+        NSLog(@"RESPONSE HTMLSTRING: %@", HTMLString);
+        
         NSString *onceString = [self findOnceInHTMLString:HTMLString];
+        NSString *usernameString = [self findUsernameInHTMLString:HTMLString];
+        NSString *passwordString = [self findPasswordInHTMLString:HTMLString];
         if (onceString) {
-            success(onceString);
+            if (usernameString == nil) {
+                NSDictionary *dict = @{
+                                       @"onceString": onceString,
+                                       };
+                success(dict);
+            } else {
+                NSDictionary *dict = @{
+                                       @"onceString": onceString,
+                                       @"usernameString": usernameString,
+                                       @"passwordString": passwordString,
+                                       };
+                success(dict);
+            }
         } else {
-            
+            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:V2ErrorTypeNoOnceAndNext userInfo:nil];
+            failure(error);
         }
         
     } failure:^(NSError *error) {
@@ -115,20 +133,23 @@ static NSString *const kUserIsLogin = @"userIsLogin";
                                                 success:(void (^)(NSString *message))success
                                                 failure:(void (^)(NSError *error))failure {
     
-    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    for (NSHTTPCookie *cookie in [storage cookies]) {
-        [storage deleteCookie:cookie];
-    }
+//    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+//    for (NSHTTPCookie *cookie in [storage cookies]) {
+//        [storage deleteCookie:cookie];
+//    }
     
 
     
-    [self requestOnceWithURLString:@"https://www.v2ex.com/signin" success:^(NSString *onceString) {
+    [self requestOnceWithURLString:@"https://www.v2ex.com/signin" success:^(NSDictionary *stringDict) {
+        NSString *onceString = stringDict[@"onceString"];
+        NSString *usernameString = stringDict[@"usernameString"];
+        NSString *passwordString = stringDict[@"passwordString"];
         
         NSDictionary *parameters = @{
                                      @"once" : onceString,
                                      @"next" : @"/",
-                                     @"p" : password,
-                                     @"u" : username,
+                                     passwordString : password,
+                                     usernameString : username,
                                      };
         
         NSLog(@"PARAMETERS: %@", parameters);
@@ -146,12 +167,51 @@ static NSString *const kUserIsLogin = @"userIsLogin";
             if ([htmlString rangeOfString:@"/notifications"].location != NSNotFound) {
                 success(username);
             } else {
-                NSLog(@"THE BASEURL IS: %@", self.manager.baseURL);
                 
                 NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:V2ErrorTypeLoginFailure userInfo:nil];
                 
                 failure(error);
             }
+            
+        }failure:^(NSError *error) {
+            failure(error);
+        }];
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+    
+    return nil;
+    
+}
+
+- (NSURLSessionDataTask *)replyWithContent:(NSString *)content url:(NSString *)url
+                                    success:(void (^)(NSString *message))success
+                                    failure:(void (^)(NSError *error))failure {
+    
+    //    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    //    for (NSHTTPCookie *cookie in [storage cookies]) {
+    //        [storage deleteCookie:cookie];
+    //    }
+    
+    
+    
+    [self requestOnceWithURLString:url success:^(NSDictionary *stringDict) {
+        NSString *onceString = stringDict[@"onceString"];
+        NSDictionary *parameters = @{@"content" : content,
+                                     @"once" : onceString
+                                     };
+        
+        [self.manager.requestSerializer setValue:url forHTTPHeaderField:@"Referer"];
+        
+        [self requestWithMethod:V2RequestMethodHTTPPOST URLString:url parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+            
+            
+            NSString *htmlString = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+            
+            NSLog(@"RESPONSE HTMLSTRING: %@", htmlString);
+            
+            success(nil);
             
         }failure:^(NSError *error) {
             failure(error);
@@ -173,6 +233,72 @@ static NSString *const kUserIsLogin = @"userIsLogin";
     } else {
         return nil;
     }
+}
+
+- (NSString *)findUsernameInHTMLString:(NSString *)HTMLString
+{
+    __block NSString *usernameString;
+    
+    @autoreleasepool {
+        
+        NSError *error = nil;
+        HTMLParser *parser = [[HTMLParser alloc] initWithString:HTMLString error:&error];
+        
+        if (error) {
+            NSLog(@"Error: %@", error);
+        }
+        
+        HTMLNode *bodyNode = [parser body];
+        
+        NSArray *inputNodes = [bodyNode findChildTags:@"input"];
+        
+        [inputNodes enumerateObjectsUsingBlock:^(HTMLNode *aNode, NSUInteger idx, BOOL *stop) {
+            
+            if ([[aNode getAttributeNamed:@"type"] isEqualToString:@"text"]) {
+                usernameString = [aNode getAttributeNamed:@"name"];
+            }
+            
+        }];
+        
+    }
+    
+    NSLog(@"USERNAME STRING: %@", usernameString);
+    
+    return usernameString;
+
+}
+
+- (NSString *)findPasswordInHTMLString:(NSString *)HTMLString
+{
+    __block NSString *passwordString;
+    
+    @autoreleasepool {
+        
+        NSError *error = nil;
+        HTMLParser *parser = [[HTMLParser alloc] initWithString:HTMLString error:&error];
+        
+        if (error) {
+            NSLog(@"Error: %@", error);
+        }
+        
+        HTMLNode *bodyNode = [parser body];
+        
+        NSArray *inputNodes = [bodyNode findChildTags:@"input"];
+        
+        [inputNodes enumerateObjectsUsingBlock:^(HTMLNode *aNode, NSUInteger idx, BOOL *stop) {
+            
+            if ([[aNode getAttributeNamed:@"type"] isEqualToString:@"password"]) {
+                passwordString = [aNode getAttributeNamed:@"name"];
+            }
+            
+        }];
+        
+    }
+    
+    NSLog(@"PASSWORD STRING: %@", passwordString);
+    
+    return passwordString;
+    
 }
 
 - (NSURLSessionDataTask *)requestWithMethod:(V2RequestMethod)method
@@ -199,6 +325,8 @@ static NSString *const kUserIsLogin = @"userIsLogin";
     
     // Create HTTPSession
     NSURLSessionDataTask *task = nil;
+    
+    [self.manager.requestSerializer setValue:self.userAgentMobile forHTTPHeaderField:@"User-Agent"];
     
     if (method == V2RequestMethodJSONGET) {
         AFHTTPResponseSerializer *responseSerializer = [AFJSONResponseSerializer serializer];
